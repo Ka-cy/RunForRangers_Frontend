@@ -1,12 +1,9 @@
 Run For Rungers Frontend Web Application
-#Lanaguages
-- TypeScript
+
+##Lanaguages
+- TypeScript (Chart.Js)
 - HTML
 - Css
-
-
-
-
 ### Features
 
 ·Online Store Management
@@ -18,5 +15,6 @@ Run For Rungers Frontend Web Application
 ·Employee Management
 -Reporting & Analytics
 -User 2FA Authentication 
+
 
 
