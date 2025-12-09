@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In</title>
+
+  <!-- Add Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<app-nav-bar-default></app-nav-bar-default>
+
+<!-- Loading Overlay -->
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner-container">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="loading-text">Signing you in...</p>
+  </div>
+</div>
+
+<!-- Main Sign In Section -->
+<main class="main-container" [class.blur-content]="loading">
+  <h1>Sign In</h1>
+  <div class="form-box">
+    <label for="email">Email</label>
+    <input [(ngModel)]="loginInput.email" type="email" id="email" placeholder="Enter your email"
+           [ngClass]="{'input-error': loginErrors.emailRequired}">
+    <p class="error-text" *ngIf="loginErrors.emailRequired">Email is required</p>
+
+    <label for="password">Password</label>
+    <input [(ngModel)]="loginInput.password" type="password" id="password" placeholder="Enter your password"
+           [ngClass]="{'input-error': loginErrors.passwordRequired}">
+    <p class="error-text" *ngIf="loginErrors.passwordRequired">Password is required</p>
+
+    <p class="error-text" *ngIf="loginErrors.loginFailed">{{ loginErrors.loginFailed }}</p>
+
+    <button (click)="Login()" class="btn-signin" [disabled]="loading">
+      {{ loading ? 'Signing In...' : 'Login' }}
+    </button>
+    <br />
+    <a (click)="ForgetPassword()">Forget Password?</a>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer" [class.blur-content]="loading">
+  <div class="social-icons">
+    <i class="fab fa-x-twitter"></i>
+    <i class="fab fa-instagram"></i>
+    <i class="fab fa-youtube"></i>
+    <i class="fab fa-linkedin"></i>
+  </div>
+</footer>
+
+</body>
+</html>

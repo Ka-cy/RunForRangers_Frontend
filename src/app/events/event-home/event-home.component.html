@@ -1,0 +1,91 @@
+<app-nav-bar-admin></app-nav-bar-admin>
+<app-notification-modal></app-notification-modal>
+
+<div class="container">
+  <div class="header">
+    <h2>Events</h2>
+    <div class="header-actions">
+      <div class="search-container">
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search events by name..." 
+          [(ngModel)]="searchTerm" 
+          (input)="onSearchChange()"
+        />
+      </div>
+      <div class="button-group">
+        <button (click)="addNew()" class="button button-large">Create New Event</button>
+        <button (click)="viewCompleted()" class="button">View Completed Events</button>
+        <button (click)="viewCalendar()" class="button btn-calendar">Calendar View</button>
+         <app-help-button category="events"></app-help-button>
+      
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading">Loading...</div>
+  <div *ngIf="!isLoading && filteredEvents.length === 0 && searchTerm === ''">No events found.</div>
+  <div *ngIf="!isLoading && filteredEvents.length === 0 && searchTerm !== ''">No events found matching "{{ searchTerm }}".</div>
+
+  <div class="events-container" *ngIf="!isLoading && filteredEvents.length > 0">
+    <div *ngFor="let event of filteredEvents" class="event-card">
+      <div class="event-header">
+        <h3>{{ event.eventName }}</h3>
+        <span class="event-status">{{ event.eventStatusName }}</span>
+      </div>
+      
+      <div class="event-details">
+        <p><strong>Description:</strong> {{ event.description }}</p>
+        <p><strong>Date:</strong> {{ event.date | date:'yyyy-MM-dd' }}</p>
+        <p><strong>Status:</strong> {{ event.eventStatusName }}</p>
+      </div>
+
+      <div *ngIf="event.jobs && event.jobs.length > 0" class="jobs-section">
+        <h4>Jobs:</h4>
+        <div *ngFor="let job of event.jobs" class="job-card">
+          <p><strong>Job Title:</strong> {{ job.jobTitle }}</p>
+          <p><strong>Job Description:</strong> {{ job.jobDescription }}</p>
+          <p><strong>Job Status:</strong> {{ job.jobStatusName }}</p>
+          
+          <div class="employees-section">
+            <p><strong>Assigned Employees:</strong></p>
+            <div *ngIf="job.employees && job.employees.length > 0; else noEmployees">
+              <ul>
+                <li *ngFor="let employee of job.employees">
+                  {{ employee.firstName }} {{ employee.lastName }} (ID: {{ employee.employeeId }})
+                </li>
+              </ul>
+            </div>
+            <ng-template #noEmployees>
+              <p class="text-muted">No employees assigned to this job</p>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-actions">
+        <button 
+          *ngIf="!event.isCompleted" 
+          (click)="markComplete(event)" 
+          class="button btn-warning"
+          [disabled]="actionLoading[event.id]">
+          <span *ngIf="!actionLoading[event.id]">Mark as Complete</span>
+          <span *ngIf="actionLoading[event.id]" class="loading-spinner">
+            <span class="spinner-small"></span> Processing...
+          </span>
+        </button>
+        <button (click)="moreInfo(event)" class="button btn-info">More Info</button>
+        <button 
+          (click)="deleteEvent(event)" 
+          class="button btn-danger"
+          [disabled]="actionLoading[event.id]">
+          <span *ngIf="!actionLoading[event.id]">Delete</span>
+          <span *ngIf="actionLoading[event.id]" class="loading-spinner">
+            <span class="spinner-small"></span> Deleting...
+          </span>
+        </button>
+        <button (click)="viewRegisteredRunners(event.id)" class="button btn-success">View Registered Runners</button>
+      </div>
+  </div>
+</div>

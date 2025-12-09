@@ -1,0 +1,211 @@
+<!-- Navigation Bar -->
+<app-nav-bar-default></app-nav-bar-default>
+
+<div class="container">
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner-border text-success"></div>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+    <div class="register-container">
+      <h1>Register as Runner</h1>
+      <p class="subtitle">Complete your runner profile to participate in events</p>
+
+      <form class="register-form" (ngSubmit)="saveRunner()" #runnerForm="ngForm">
+
+        <!-- Profile Image -->
+        <div class="form-group">
+          <label [class]="getLabelClass('ProfileImage')" for="runnerImage">
+            Profile Image
+          </label>
+          <div class="image-upload-container">
+            <input
+              type="file"
+              id="runnerImage"
+              name="runnerImage"
+              accept="image/jpeg,image/png,image/gif"
+              (change)="onFileSelected($event)"
+              [class]="getInputClass('ProfileImage')"
+              style="display: none;">
+            <div class="image-preview-container">
+              <div *ngIf="!selectedImagePreview" class="upload-placeholder">
+                <i class="fas fa-user-circle"></i>
+                <span>Upload a profile picture</span>
+              </div>
+              <img *ngIf="selectedImagePreview" [src]="selectedImagePreview" alt="Profile preview" class="image-preview">
+            </div>
+            <div class="image-info-text">
+              <p><strong>Your existing profile picture will be used automatically.</strong></p>
+              <p>You can optionally upload a different picture for your runner profile if you prefer.</p>
+            </div>
+            <div class="image-buttons">
+              <button type="button" class="btn-secondary" (click)="triggerFileInput()">
+                {{ selectedImagePreview && selectedImagePreview !== userInfo?.profileImageBase64 ? 'Change Picture' : 'Upload Different Picture' }}
+              </button>
+              <button *ngIf="selectedImagePreview && selectedImagePreview !== userInfo?.profileImageBase64" type="button" class="btn-danger" (click)="removeImage()">
+                Use Original Profile Picture
+              </button>
+            </div>
+          </div>
+          <div *ngIf="errorMessages['ProfileImage'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['ProfileImage'] }}
+          </div>
+        </div>
+
+        <!-- ID Number -->
+        <div class="form-group">
+          <label [class]="getLabelClass('idNumber')" for="IDNumber">
+            ID Number <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="IDNumber"
+            name="IDNumber"
+            [(ngModel)]="newRunner.idNumber"
+            class="form-control"
+            placeholder="Enter your 13-digit ID number"
+            [ngClass]="getInputClass('idNumber')"
+            maxlength="13"
+            required />
+          <small class="form-text">Must be a valid 13-digit South African ID number</small>
+          <div *ngIf="errorMessages['idNumber'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['idNumber'] }}
+          </div>
+        </div>
+
+        <!-- Country of Residence -->
+        <div class="form-group">
+          <label [class]="getLabelClass('countryOfResidence')" for="CountryOfResidence">
+            Country of Residence <span class="required">*</span>
+          </label>
+          <ng-select
+            class="custom-select"
+            [items]="countries"
+            bindLabel="countryName"
+            bindValue="countryName"
+            [(ngModel)]="newRunner.countryOfResidence"
+            name="CountryOfResidence"
+            [searchable]="true"
+            placeholder="Search and select your country"
+            [ngClass]="{'form-control': true, 'error-input': getInputClass('countryOfResidence') === 'error-input'}"
+            required>
+          </ng-select>
+          <div *ngIf="errorMessages['countryOfResidence'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['countryOfResidence'] }}
+          </div>
+        </div>
+
+        <!-- Nationality -->
+        <div class="form-group">
+          <label [class]="getLabelClass('nationality')" for="Nationality">
+            Nationality <span class="required">*</span>
+          </label>
+          <ng-select
+            class="custom-select"
+            [items]="countries"
+            bindLabel="countryName"
+            bindValue="countryName"
+            [(ngModel)]="newRunner.nationality"
+            name="Nationality"
+            [searchable]="true"
+            placeholder="Search and select nationality"
+            [ngClass]="{'form-control': true, 'error-input': getInputClass('nationality') === 'error-input'}"
+            required>
+          </ng-select>
+          <div *ngIf="errorMessages['nationality'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['nationality'] }}
+          </div>
+        </div>
+
+        <!-- Shoe Size -->
+        <div class="form-group">
+          <label [class]="getLabelClass('shoeSize')" for="ShoeSize">Shoe Size</label>
+          <input
+            type="text"
+            id="ShoeSize"
+            name="ShoeSize"
+            [(ngModel)]="newRunner.shoeSize"
+            class="form-control"
+            placeholder="E.g. 9 (US), 8.5 (UK), or 43 (EU)"
+            [ngClass]="getInputClass('shoeSize')" />
+          <small class="form-text">Enter your shoe size in US, UK, or EU sizing (3-50)</small>
+          <div *ngIf="errorMessages['shoeSize'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['shoeSize'] }}
+          </div>
+        </div>
+
+        <!-- Clothing Size -->
+        <div class="form-group">
+          <label [class]="getLabelClass('clothingSize')" for="ClothingSize">Clothing Size</label>
+          <select
+            id="ClothingSize"
+            name="ClothingSize"
+            [(ngModel)]="newRunner.clothingSize"
+            class="form-control"
+            [ngClass]="getInputClass('clothingSize')">
+            <option value="">Select clothing size</option>
+            <option value="S">Small (S)</option>
+            <option value="M">Medium (M)</option>
+            <option value="L">Large (L)</option>
+            <option value="XL">Extra Large (XL)</option>
+            <option value="XXL">Double Extra Large (XXL)</option>
+          </select>
+          <div *ngIf="errorMessages['clothingSize'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['clothingSize'] }}
+          </div>
+        </div>
+
+        <!-- Allergies -->
+        <div class="form-group">
+          <label [class]="getLabelClass('allergies')" for="Allergies">Allergies</label>
+          <input
+            type="text"
+            id="Allergies"
+            name="Allergies"
+            [(ngModel)]="newRunner.allergies"
+            class="form-control"
+            placeholder="E.g. Peanuts, Latex, None"
+            [ngClass]="getInputClass('allergies')" />
+          <small class="form-text">List any allergies or write "None"</small>
+          <div *ngIf="errorMessages['allergies'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['allergies'] }}
+          </div>
+        </div>
+
+        <!-- Medical History -->
+        <div class="form-group">
+          <label [class]="getLabelClass('medicalHistory')" for="MedicalHistory">Medical History</label>
+          <textarea
+            id="MedicalHistory"
+            name="MedicalHistory"
+            [(ngModel)]="newRunner.medicalHistory"
+            class="form-control"
+            rows="3"
+            placeholder="Mention any medical conditions we should know about or write 'None'"
+            [ngClass]="getInputClass('medicalHistory')">
+          </textarea>
+          <small class="form-text">Include any relevant medical information for event safety</small>
+          <div *ngIf="errorMessages['medicalHistory'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['medicalHistory'] }}
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-register" [disabled]="isLoading">
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            {{ isLoading ? 'Registering...' : 'Complete Registration' }}
+          </button>
+          
+          <div class="form-links">
+            <a routerLink="/home" class="link-secondary">Cancel</a>
+            <span class="divider">|</span>
+            <a routerLink="/runner-page" class="link-primary">Back to Runner Page</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>

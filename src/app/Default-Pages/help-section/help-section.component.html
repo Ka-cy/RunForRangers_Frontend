@@ -1,0 +1,104 @@
+<!--Nav Bar-->
+<app-nav-bar-default></app-nav-bar-default>
+
+<!-- help-section.component.html -->
+<div class="container">
+  <div class="header">
+    <h1>People also ask</h1>
+    <div class="menu-dots">
+      <div class="dot"></div>.
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search for help topics..." 
+          [(ngModel)]="searchQuery"
+          (input)="onSearchChange()"
+        />
+        <button 
+          *ngIf="searchQuery" 
+          class="clear-search" 
+          (click)="clearSearch()"
+          aria-label="Clear search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+       
+      </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="category-filter">
+      <select 
+        class="category-select" 
+        [(ngModel)]="selectedCategory" 
+        (change)="onCategoryChange()">
+        <option *ngFor="let category of categories" [value]="category.value">
+          {{ category.label }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="results-summary">
+      <span class="results-text">{{ searchResultText }}</span>
+      <button 
+        *ngIf="searchQuery || selectedCategory !== 'all'" 
+        class="clear-filters" 
+        (click)="clearSearch()">
+        Clear filters
+      </button>
+    </div>
+  </div>
+
+  <!-- FAQ Container -->
+  <div class="faq-container" *ngIf="hasResults">
+    <div class="faq-item" *ngFor="let item of filteredFaqItems; let i = index">
+      <div class="faq-question" (click)="toggleAnswer(i)">
+        <span [innerHTML]="highlightSearchTerm(item.question)"></span>
+        <svg 
+          class="chevron" 
+          [class.rotated]="item.isOpen"
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          stroke-width="2">
+          <polyline points="6,9 12,15 18,9"></polyline>
+        </svg>
+      </div>
+      <div class="faq-answer" [class.active]="item.isOpen">
+        <div [innerHTML]="highlightSearchTerm(formatAnswer(item.answer))"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results Message -->
+  <div class="no-results" *ngIf="!hasResults">
+    <div class="no-results-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
+    </div>
+    <h3>No results found</h3>
+    <p>Try adjusting your search terms or browse all categories.</p>
+    <button class="show-all-btn" (click)="clearSearch()">Show all questions</button>
+  </div>
+</div>
+
+<a href="#" class="feedback-link">Feedback</a>

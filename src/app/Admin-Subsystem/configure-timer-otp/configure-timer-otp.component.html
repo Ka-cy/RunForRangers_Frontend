@@ -1,0 +1,74 @@
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<div class="admin-layout">
+    <div class="container">
+       
+    <div class="row">
+        <div class="col-12">
+            <h1>Current OTP Session Time Out</h1>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3>Current Timer: {{ TimerLimit }} minutes</h3>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <label for="timerSelect" class="form-label">Select New Time Limit (Minutes):</label>
+            <select 
+                id="timerSelect"
+                class="form-select" 
+                [(ngModel)]="NewTimerLimit" 
+                aria-label="Select timer limit">
+                <option value="" disabled selected>Choose time limit...</option>
+                <option *ngFor="let minute of minutes" [value]="minute">{{ minute }} minutes</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <button 
+                class="btn btn-primary" 
+                (click)="ChangeTimerLimit()" 
+                [disabled]="!NewTimerLimit">
+                Save Changes
+            </button>
+            <button 
+                class="btn btn-secondary ms-2" 
+                (click)="ResetSelection()">
+                Reset
+                
+            </button>
+        </div>
+    </div>
+    
+    <br>
+<br>
+<br>
+    <div class="ResetDataSection">
+        <h1>Reset Data</h1>
+         <div class="alert alert-warning mt-3" color="red" role="alert">
+            Warning: This action will delete all user data and cannot be undone.
+        </div>
+        <br>
+        <button disabled class="btn btn-danger" (click)="ResetDatabase()">Reset All Data</button>
+
+
+       
+
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div class="row mt-3" *ngIf="isMessageVisible">
+        <div class="col-12">
+            <div class="alert" [ngClass]="messageType" role="alert">
+                {{ message }}
+            </div>
+        </div>
+    </div>
+</div>
+</div>

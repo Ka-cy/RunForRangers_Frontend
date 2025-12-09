@@ -1,0 +1,112 @@
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Main Content */
+.main-content {
+  margin-left: 280px; /* Match sidebar width */
+  margin-top: 70px; /* Match top navbar height */
+  padding: 30px;
+  flex: 1;
+  background-color: #f8fafc;
+  min-height: calc(100vh - 70px);
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+/* Employee-style header */
+.header {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  padding: 24px 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left .page-title h1 { font-size:28px; font-weight:700; color:#1e293b; margin:0 0 4px 0; display:flex; align-items:center; gap:12px; }
+.header-left .page-title .page-subtitle { color:#64748b; font-size:14px; margin:0; font-weight:500; }
+.header-right { display:flex; align-items:center; gap:24px; }
+.user-info { display:flex; align-items:center; gap:12px; cursor:pointer; padding:8px 16px; border-radius:8px; position:relative; }
+.user-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#f59e0b,#fbbf24); color:white; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; box-shadow:0 2px 8px rgba(245,158,11,0.3); }
+.user-dropdown { position:absolute; top:100%; right:0; background:white; border:1px solid #e2e8f0; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); opacity:0; visibility:hidden; transform:translateY(-10px); transition:all 0.2s ease; z-index:1000; min-width:180px; margin-top:8px; }
+.user-dropdown.show { opacity:1; visibility:visible; transform:translateY(0); }
+.dropdown-item { padding:12px 16px; color:#475569; font-size:14px; display:flex; gap:12px; align-items:center; }
+.dropdown-item.logout { color:#dc2626; }
+
+/* Canonical Employee header helpers (component-scoped) */
+.search-container {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  width: 320px;
+  transition: all 0.2s ease;
+}
+
+.search-container:focus-within {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.search-icon { color: #94a3b8; margin-right: 12px; font-size: 14px; }
+.search-input { border: none; background: none; outline: none; flex: 1; font-size: 14px; color: #1e293b; }
+
+.user-info { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px 16px; border-radius: 8px; transition: all 0.2s ease; position: relative; }
+.user-info:hover { background-color: rgba(245, 158, 11, 0.05); }
+
+.user-details { text-align: right; }
+.user-details h4 { font-size: 14px; font-weight: 600; color: #1e293b; margin: 0; }
+.user-details .role { font-size: 12px; color: #64748b; font-weight: 500; }
+
+.dropdown-arrow { color: #94a3b8; font-size: 12px; transition: transform 0.2s ease; }
+.dropdown-arrow.rotated { transform: rotate(180deg); }
+
+.user-dropdown { position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; z-index: 1000; min-width: 180px; margin-top: 8px; }
+.user-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.user-dropdown a { display: block; padding: 12px 16px; color: #475569; text-decoration: none; font-size: 14px; cursor: pointer; }
+.user-dropdown a:hover { background-color: #f8fafc; color: #1e293b; }
+.user-dropdown .logout { color: #dc2626; }
+.dropdown-divider { height: 1px; background-color: #e2e8f0; margin: 8px 0; }
+
+.content-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.report-button {
+  padding: 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.report-button:hover {
+  background-color: #45a049;
+}
+

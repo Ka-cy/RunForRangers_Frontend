@@ -1,0 +1,46 @@
+<div class="dashboard-container">
+  <app-nav-bar-admin></app-nav-bar-admin>
+
+  <div class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <div class="page-title">
+          <h1>Reports</h1>
+          <p class="page-subtitle">Generate and view reports</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="user-info" (click)="toggleUserDropdown()">
+          <div class="user-details">
+            <h4>{{ getCurrentUserName() }}</h4>
+            <span class="role">{{ getCurrentUserRole() }}</span>
+          </div>
+          <div class="user-avatar">{{ getCurrentUserInitials() }}</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-header">
+      <h2>Organisation Donation Report</h2>
+    </div>
+
+    <div class="button-grid">
+      <button class="report-button" (click)="navigateToOrganisationDonationReport()">
+        Organisation Donation Report
+      </button>
+      <button class="report-button" (click)="navigateToRunnerDonationReport()">
+        Runner Donation Report
+      </button>
+      <button class="report-button" (click)="navigateToSalesReport()">
+        Sales Report
+      </button>
+      <button class="report-button" (click)="navigateToProductOnHandReport()">
+        Product on hand Report
+      </button>
+      <button class="report-button" (click)="navigateToExpenditureReport()">
+        Expenditure Report
+      </button>
+    </div>
+  </div>
+</div>

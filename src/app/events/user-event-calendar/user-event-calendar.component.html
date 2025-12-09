@@ -1,0 +1,42 @@
+<div class="calendar-container" *ngIf="!isLoading">
+	<div class="calendar-header">
+		<button (click)="previousMonth()" class="nav-btn">&lt;</button>
+		<h2>{{ currentDate | date:'MMMM yyyy' }}</h2>
+		<select [(ngModel)]="selectedMonth" (change)="onDateChange()" class="month-select">
+			<option *ngFor="let m of months; let i = index" [value]="i">{{ m }}</option>
+		</select>
+		<select [(ngModel)]="selectedYear" (change)="onDateChange()" class="year-select">
+			<option *ngFor="let y of years" [value]="y">{{ y }}</option>
+		</select>
+		<button (click)="nextMonth()" class="nav-btn">&gt;</button>
+	</div>
+  
+	<div class="weekdays">
+		<div *ngFor="let day of weekDays" class="weekday">{{ day }}</div>
+	</div>
+
+	<div class="calendar-grid">
+		<div *ngFor="let day of calendarDays" 
+				 class="calendar-day" 
+				 [class.not-current-month]="!day.isCurrentMonth"
+				 [class.today]="day.isToday"
+				 [class.has-events]="day.hasEvents">
+			<div class="day-number">{{ day.day }}</div>
+			<div class="event-indicator" *ngIf="day.hasEvents">
+				<div class="event-count">{{ day.events.length }} event{{ day.events.length > 1 ? 's' : '' }}</div>
+			</div>
+			<div class="event-list" *ngIf="day.hasEvents">
+				<div *ngFor="let event of day.events" class="event-item">
+					{{ event.eventName }}
+					<span *ngIf="isRunner && registeredEventIds.includes(event.id)" class="registered-label">(registered)</span>
+					<button *ngIf="isRunner" 
+							[disabled]="registeredEventIds.includes(event.id)" 
+							(click)="onRegisterClick(event)" 
+							class="register-btn">
+						Register
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

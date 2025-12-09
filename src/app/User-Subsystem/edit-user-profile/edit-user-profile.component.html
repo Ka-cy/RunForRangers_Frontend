@@ -1,0 +1,139 @@
+<!-- Nav Bar -->
+<app-nav-bar-default></app-nav-bar-default>
+
+
+
+
+<!-- Add this container wrapper -->
+<div class="page-container">
+  <div class="profile-card">
+    <!-- Header -->
+    <div class="profile-header">
+      <h2 class="profile-title">Edit Profile</h2>
+    </div>
+
+    <!-- Profile Photo Section -->
+    <div class="profile-photo-section">
+      <div class="profile-photo">
+        <img 
+          *ngIf="getDisplayImage()" 
+          [src]="getDisplayImage()" 
+          alt="Profile Photo"
+        >
+        <div *ngIf="!getDisplayImage()" class="default-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+      
+      <!-- Hidden file input -->
+      <input 
+        type="file" 
+        id="profileImage" 
+        name="profileImage"
+        accept="image/*"
+        (change)="onFileSelected($event)"
+        style="display: none;">
+      
+      <!-- Image action buttons -->
+      <div class="photo-actions">
+        <button type="button" class="edit-photo-btn" (click)="triggerFileInput()">
+          {{ getDisplayImage() ? 'Change Photo' : 'Add Photo' }}
+        </button>
+        
+        <button 
+          *ngIf="getDisplayImage()" 
+          type="button" 
+          class="remove-photo-btn" 
+          (click)="removeImage()">
+          Remove Photo
+        </button>
+      </div>
+      
+      <!-- Image error message -->
+      <div *ngIf="objErrorMessage.ProfileImageError" class="error-message">
+        {{ objErrorMessage.ProfileImageError }}
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form class="profile-form" (ngSubmit)="onSave()">
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Name</label>
+          <input 
+            type="text" 
+            id="firstName" 
+            name="name"
+            class="form-input"
+            [(ngModel)]="userUpdates.firstName"
+            required
+          />
+          <div *ngIf="objErrorMessage.FirstnameError" class="error-message">
+              {{ objErrorMessage.FirstnameError }}
+            </div>
+        </div>
+        <div class="form-group">
+          <label for="lastName">Surname</label>
+          <input 
+            type="text" 
+            id="lastName" 
+            name="surname"  
+            [(ngModel)]="userUpdates.surname"          
+            class="form-input"
+            required
+          />
+          <div *ngIf="objErrorMessage.SurnameError" class="error-message">
+              {{ objErrorMessage.SurnameError }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-input"
+            name="email"
+            [(ngModel)]="userUpdates.email"
+            readonly
+            required
+          />
+            <div *ngIf="objErrorMessage.EmailError" class="error-message">
+              {{ objErrorMessage.EmailError }}
+            </div>
+        </div>
+        <div class="form-group">
+          <label for="cellNumber">Cellphone Number</label>
+          <input 
+            type="tel" 
+            id="cellNumber" 
+            class="form-input"
+            name="cellNumber"
+            [(ngModel)]="userUpdates.cellphone"
+            required
+          />
+          <div *ngIf="objErrorMessage.CellphoneError" class="error-message">
+              {{ objErrorMessage.CellphoneError }}
+            </div>
+        </div>
+      </div>
+
+    <div class="formgroup">
+  <button type="button" class="btn btn-change-password" (click)="changePassword()">
+    <i class="fas fa-key"></i>
+    Change Password
+    </button>
+</div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button type="submit" class="save-btn">Save</button>
+        <button type="button" class="cancel-btn" (click)="onCancel()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+<app-notification-modal></app-notification-modal>

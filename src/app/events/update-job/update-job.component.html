@@ -1,0 +1,77 @@
+<app-nav-bar-admin></app-nav-bar-admin>
+<app-notification-modal></app-notification-modal>
+
+<div class="update-job">
+  <div class="content">
+    <h1>Update Job</h1>
+  </div>
+
+  <div class="container">
+    <form>
+      <div class="form-group">
+        <label for="jobTitle">Job Title</label>
+        <input 
+          type="text" 
+          id="jobTitle" 
+          [(ngModel)]="job.jobTitle" 
+          name="jobTitle" 
+          (input)="validateJobTitle()"
+          #jobTitle="ngModel"
+          [class.invalid]="job.jobTitle && job.jobTitle.length > 50"
+          required>
+        <div *ngIf="job.jobTitle && job.jobTitle.length > 50" class="error-message">
+          Job title must not exceed 50 characters. Current: {{ job.jobTitle.length }}/50
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="jobDescription">Description</label>
+        <textarea 
+          id="jobDescription" 
+          [(ngModel)]="job.jobDescription" 
+          name="jobDescription" 
+          (input)="validateJobDescription()"
+          #jobDescription="ngModel"
+          [class.invalid]="job.jobDescription && job.jobDescription.length > 200"
+          required></textarea>
+        <div *ngIf="job.jobDescription && job.jobDescription.length > 200" class="error-message">
+          Job description must not exceed 200 characters. Current: {{ job.jobDescription.length }}/200
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <button type="button" (click)="toggleEmployeeList()" class="assign-employee-btn">
+          {{ showEmployeeList ? 'Hide' : 'Assign' }} Employees
+        </button>
+        
+        <div *ngIf="showEmployeeList" class="employee-list">
+          <h4>Available Employees</h4>
+          <div *ngFor="let employee of availableEmployees" class="employee-item">
+            <div *ngIf="!employee.selected" (click)="selectEmployee(employee)" class="employee-card selectable">
+              <p><strong>{{ employee.firstName }} {{ employee.lastName }}</strong></p>
+              <p>{{ employee.email }}</p>
+              <p>{{ employee.cellPhone }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group" *ngIf="job.employees.length > 0">
+        <h3>Assigned Employees</h3>
+        <div *ngFor="let employee of job.employees" class="assigned-employee">
+          <div class="employee-details">
+            <p><strong>Name:</strong> {{ employee.firstName }} {{ employee.lastName }}</p>
+            <p><strong>Email:</strong> {{ employee.email }}</p>
+            <p><strong>Phone:</strong> {{ employee.cellPhone }}</p>
+          </div>
+          <button type="button" (click)="removeEmployee(employee)" class="remove-btn">Remove</button>
+        </div>
+      </div>
+      
+      <div class="form-actions-bottom-right">
+        <button type="button" (click)="saveJob()" class="btn btn-primary">Save</button>
+        <button type="button" (click)="cancel()" class="btn btn-secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

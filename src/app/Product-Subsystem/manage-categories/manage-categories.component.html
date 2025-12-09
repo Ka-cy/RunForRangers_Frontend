@@ -1,0 +1,116 @@
+<div class="dashboard-container">
+  <div class="top-navbar">
+    <div class="search-container">
+      <input type="text" placeholder="Search categories..." class="search-input">
+      <button class="search-button">
+        <svg class="search-icon" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <app-nav-bar-admin></app-nav-bar-admin>
+
+  <div class="main-content">
+    <div class="content-header">
+      <h2>Manage Categories</h2>
+      <div class="action-buttons">
+        <button class="back-btn" (click)="goBack()">
+          <span>←</span> Back to Dashboard
+        </button>
+        <button class="add-btn" (click)="showAddForm()" *ngIf="!showForm">
+          <span>+</span> Add Category
+        </button>
+      </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div class="message success" *ngIf="success">
+      {{ success }}
+    </div>
+    <div class="message error" *ngIf="error">
+      {{ error }}
+    </div>
+
+    <!-- Add/Edit Form -->
+    <div class="form-container" *ngIf="showForm">
+      <div class="form-header">
+        <h3>{{ editingCategory ? 'Edit Category' : 'Add New Category' }}</h3>
+        <button class="close-btn" (click)="cancelForm()">×</button>
+      </div>
+      
+      <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="categoryName">Category Name *</label>
+          <input 
+            type="text" 
+            id="categoryName"
+            formControlName="categoryName"
+            placeholder="Enter category name"
+            [class.error]="categoryForm.get('categoryName')?.invalid && categoryForm.get('categoryName')?.touched"
+          >
+          <div class="error-message" *ngIf="categoryForm.get('categoryName')?.invalid && categoryForm.get('categoryName')?.touched">
+            Category name is required and must be at least 2 characters.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="categoryDescription">Description *</label>
+          <textarea 
+            id="categoryDescription"
+            formControlName="categoryDescription"
+            placeholder="Enter category description"
+            rows="3"
+            [class.error]="categoryForm.get('categoryDescription')?.invalid && categoryForm.get('categoryDescription')?.touched"
+          ></textarea>
+          <div class="error-message" *ngIf="categoryForm.get('categoryDescription')?.invalid && categoryForm.get('categoryDescription')?.touched">
+            Description is required and must be at least 5 characters.
+          </div>
+        </div>
+
+        <!-- Info note for new categories -->
+        <div class="info-note" *ngIf="!editingCategory">
+          <p><strong>Note:</strong> A default type will be automatically created for this category. You can add more types later using the "Manage Types" section.</p>
+        </div>
+
+        <div class="form-buttons">
+          <button type="button" class="cancel-btn" (click)="cancelForm()">Cancel</button>
+          <button type="submit" class="submit-btn" [disabled]="categoryForm.invalid">
+            {{ editingCategory ? 'Update Category' : 'Create Category' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Categories Table -->
+    <div class="categories-table" *ngIf="categories.length > 0">
+      <div class="table-header">
+        <div class="header-item">ID</div>
+        <div class="header-item">Category Name</div>
+        <div class="header-item">Description</div>
+        <div class="header-item">Actions</div>
+      </div>
+
+      <div class="table-body">
+        <div class="table-row" *ngFor="let category of categories">
+          <div class="table-cell">{{ category.productCategoryId }}</div>
+          <div class="table-cell">{{ category.categoryName }}</div>
+          <div class="table-cell">{{ category.categoryDescription }}</div>
+          <div class="table-cell actions">
+            <button class="edit-btn" (click)="showEditForm(category)">Edit</button>
+            <button class="delete-btn" (click)="deleteCategory(category)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Categories Message -->
+    <div class="no-data" *ngIf="categories.length === 0 && !error">
+      <p>No categories found. Click "Add Category" to create your first category.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Modal -->
+<app-notification-modal></app-notification-modal>

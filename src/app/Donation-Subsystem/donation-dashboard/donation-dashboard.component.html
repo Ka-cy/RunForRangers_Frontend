@@ -1,0 +1,71 @@
+<link rel="stylesheet" href="donation-dashboard.component.css">
+
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<div class="main-content">
+  <!-- Employee-style header reusing existing search logic -->
+  <header class="header">
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" placeholder="Search..." (input)="searchDonations($event)">
+    </div>
+    <div class="user-info">
+      <div class="user-avatar">HB</div>
+      
+    </div>
+  </header>
+
+  <div class="page-content">
+    <div class="page-header">
+      <h1 class="page-title">Donations</h1>
+      <div class="col">
+         <app-help-button category="donations"></app-help-button>
+      </div>
+      <button class="log-donation-btn" (click)="logDonation()" routerLink="/logDonation">Log Donation</button>
+      <button (click)="navigateToUpload()" class="btn btn-success">
+    <i class="fas fa-file-upload"></i> Bulk Upload Donations
+  </button>
+    </div>
+
+    <div class="filters">
+      <span class="filter-label">🔍 Filter By:</span>
+      <button class="filter-btn" [class.active]="currentFilter === 'all'" (click)="filterDonations('all')">All</button>
+      <button class="filter-btn" [class.active]="currentFilter === 'Organisation'" (click)="filterDonations('Organisation')">Organisation</button>
+      <button class="filter-btn" [class.active]="currentFilter === 'Runner'" (click)="filterDonations('Runner')">Runner</button>
+    </div>
+
+    <div class="donations-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Donation ID</th>
+            <th>Logged By</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Donor</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="filteredDonations.length === 0">
+            <td colspan="6">No donations found</td>
+          </tr>
+          <tr *ngFor="let donation of filteredDonations">
+            <td>#{{ donation.donationID }}</td>
+            <td>{{ donation.loggedByAdminId  }}</td>
+            <td>{{ donation.type }}</td>
+            <td>{{ donation.amount }}</td>
+            <td>{{donation.donorName}}</td>
+            <td>{{ donation.date | date }}</td>
+
+            <td>
+              <button class="btn-edit" (click)="editDonation(donation.donationID)">Edit</button>
+              <button class="btn-delete" (click)="deleteDonation(donation.donationID)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

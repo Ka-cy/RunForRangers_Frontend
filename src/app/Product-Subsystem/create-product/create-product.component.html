@@ -1,0 +1,277 @@
+<div class="container">
+  <!-- Sidebar -->
+  <app-nav-bar-admin></app-nav-bar-admin>
+
+  <!-- Main Content -->
+  <main class="main">
+    <header class="header">
+      <div class="header-left">
+        <div class="page-title">
+          <h1>
+            <i class="fas fa-plus"></i>
+            Create Product
+          </h1>
+          <p class="page-subtitle">Add a new product to the catalog</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="user-info" (click)="toggleProfileMenu()">
+          <div class="user-details">
+            <h4>{{ getCurrentUserName() }}</h4>
+            <span class="role">{{ getCurrentUserRole() }}</span>
+          </div>
+          <div class="user-avatar">{{ getCurrentUserInitials() }}</div>
+          <i class="fas fa-chevron-down dropdown-arrow" [class.rotated]="showProfileMenu"></i>
+
+          <div class="user-dropdown" [class.show]="showProfileMenu">
+            <a class="dropdown-item">
+              <i class="fas fa-user"></i>
+              <span>My Profile</span>
+            </a>
+            <a class="dropdown-item">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </a>
+            <a (click)="logout()" class="dropdown-item logout">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      <!-- Loading Spinner -->
+      <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Create Product Form -->
+      <div class="form-container">
+        <h1>Add Product</h1>
+    
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <h2>Product Image</h2>
+        <div class="image-upload-container">
+          <!-- Image Preview -->
+          <div class="image-preview-section">
+            <div class="image-preview" *ngIf="imagePreview">
+              <img [src]="imagePreview" 
+                   [alt]="productForm.get('productName')?.value || 'Product Preview'" 
+                   class="preview-image"
+                   (error)="onImageLoadError($event)">
+              <button type="button" class="remove-image-btn" (click)="removeImage()">×</button>
+            </div>
+            <div class="no-image-placeholder" *ngIf="!imagePreview">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21,15 16,10 5,21"></polyline>
+              </svg>
+              <p>No image selected</p>
+            </div>
+          </div>
+
+          <!-- Upload Controls -->
+          <div class="upload-controls">
+            <!-- Drag and Drop Area -->
+            <div class="drag-drop-area" 
+                 [class.drag-over]="isDragOver"
+                 (dragover)="onDragOver($event)" 
+                 (dragleave)="onDragLeave($event)" 
+                 (drop)="onDrop($event)">
+              
+              <!-- File Input -->
+              <input type="file" 
+                     #fileInput
+                     id="productImage" 
+                     accept="image/*" 
+                     (change)="onFileSelected($event)" 
+                     class="file-input">
+              
+              <!-- Upload Content -->
+              <div class="upload-content" *ngIf="!isUploading">
+                <label for="productImage" class="file-label">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7,10 12,15 17,10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Choose File or Drag & Drop
+                </label>
+                <p class="file-info">
+                  <span class="file-name">{{ selectedImageFile?.name || 'No file chosen' }}</span>
+                  <br>
+                  <small>Supported formats: JPG, PNG, GIF, WEBP (Max 5MB)</small>
+                </p>
+              </div>
+
+              <!-- Upload Progress -->
+              <div class="upload-progress" *ngIf="isUploading">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+                </div>
+                <p class="progress-text">Uploading... {{ uploadProgress }}%</p>
+              </div>
+            </div>
+
+            <!-- Upload Actions -->
+            <div class="upload-actions" *ngIf="selectedImageFile && !isUploading">
+              <p class="upload-info">Image will be uploaded when you create the product</p>
+              <button type="button" class="cancel-btn" (click)="removeImage()">Remove Image</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Product Name</h2>
+        <input type="text" formControlName="productName" placeholder="e.g. Shirt" class="product-input"
+               [class.error]="shouldShowValidationError('productName')">
+        <div class="validation-error" *ngIf="shouldShowValidationError('productName')">
+          {{getValidationError('productName')}}
+        </div>
+      </div>
+
+    <div class="form-section">
+      <h2>Product Description</h2>
+      <textarea formControlName="description" rows="3" 
+                placeholder="Plain Blade Shirt with PowerPoints Logo on the back"
+                [class.error]="shouldShowValidationError('description')"></textarea>
+      <div class="validation-error" *ngIf="shouldShowValidationError('description')">
+        {{getValidationError('description')}}
+      </div>
+    </div>
+
+      <div class="form-row">
+        <div class="form-section">
+          <h2>Category</h2>
+          <select formControlName="category" [class.error]="shouldShowValidationError('category')">
+            <option value="">Select Category</option>
+            <ng-container *ngFor="let category of categories; let i = index">
+              <option *ngIf="category && category.categoryName" [value]="category.productCategoryId">
+                {{category.categoryName}}
+              </option>
+            </ng-container>
+          </select>
+          <div class="validation-error" *ngIf="shouldShowValidationError('category')">
+            {{getValidationError('category')}}
+          </div>
+          <div class="button-group">
+            <button type="button" class="text-button" (click)="openAddCategoryDialog()">+ New Category</button>
+            <button type="button" class="text-button manage-btn" (click)="manageCategories()">
+              <i class="fas fa-cog"></i> Manage Categories
+            </button>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>Type</h2>
+          <select formControlName="type" [class.error]="shouldShowValidationError('type')">
+            <option value="">Select Type</option>
+            <ng-container *ngFor="let type of filteredTypes; let i = index">
+              <option *ngIf="type && type.typeName" [value]="type.productTypeId">
+                {{type.typeName}}
+              </option>
+            </ng-container>
+          </select>
+          <div class="validation-error" *ngIf="shouldShowValidationError('type')">
+            {{getValidationError('type')}}
+          </div>
+          <div class="button-group">
+            <button type="button" class="text-button" (click)="openAddTypeDialog()">+ New Type</button>
+            <button type="button" class="text-button manage-btn" (click)="manageTypes()">
+              <i class="fas fa-cog"></i> Manage Types
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-section">
+          <h2>Size Type</h2>
+          <select formControlName="sizeType" [class.error]="shouldShowValidationError('sizeType')">
+            <option value="">Select Size Type</option>
+            <ng-container *ngFor="let sizeType of sizeTypes; let i = index">
+              <option *ngIf="sizeType && sizeType.sizeTypeName" [value]="sizeType.sizeTypeId">
+                {{sizeType.sizeTypeName}}
+              </option>
+            </ng-container>
+          </select>
+          <div class="validation-error" *ngIf="shouldShowValidationError('sizeType')">
+            {{getValidationError('sizeType')}}
+          </div>
+          <div class="button-group">
+            <button type="button" class="text-button manage-btn" (click)="manageSizes()">
+              <i class="fas fa-cog"></i> Manage Size Types
+            </button>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>Size Available</h2>
+          <div class="checkbox-group">
+            <label *ngFor="let size of filteredSizes; let i = index">
+              <input type="checkbox" [formControl]="$any(selectedSizes.at(i))">
+              {{size.sizeName}}
+            </label>
+          </div>
+          <p *ngIf="filteredSizes.length === 0 && productForm.get('sizeType')?.value" class="no-sizes-message">
+            No sizes available for the selected size type.
+          </p>
+          <p *ngIf="!productForm.get('sizeType')?.value" class="select-size-type-message">
+            Please select a size type to see available sizes.
+          </p>
+          <div class="button-group">
+            <button type="button" class="text-button manage-btn" (click)="manageSizes()">
+              <i class="fas fa-cog"></i> Manage Sizes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Color Available</h2>
+        <div class="checkbox-group">
+          <ng-container *ngFor="let color of colors; let i = index">
+            <label *ngIf="color && color.colorName">
+              <input type="checkbox" [formControl]="$any(selectedColors.at(i))">
+              <span class="color-dot" [style.background-color]="getColorStyle(color.colorName)"></span>
+              {{color.colorName}}
+            </label>
+          </ng-container>
+        </div>
+        <div class="button-group">
+          <button type="button" class="text-button manage-btn" (click)="manageColors()">
+            <i class="fas fa-cog"></i> Manage Colors
+          </button>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Price</h2>
+        <div class="price-input" [class.error]="shouldShowValidationError('price')">
+          <span>R</span>
+          <input type="number" formControlName="price" placeholder="0.00" step="0.01">
+        </div>
+        <div class="validation-error" *ngIf="shouldShowValidationError('price')">
+          {{getValidationError('price')}}
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="save-btn">Save Product</button>
+      </div>
+    </form>
+  </div>
+    </section>
+  </main>
+</div>
+
+<!-- Notification Modal -->
+<app-notification-modal></app-notification-modal>
+

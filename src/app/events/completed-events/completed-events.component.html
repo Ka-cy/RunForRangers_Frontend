@@ -1,0 +1,47 @@
+<app-nav-bar-admin>
+  <!-- Assuming search bar is here -->
+  <input type="text" class="textbox" placeholder="Search">
+</app-nav-bar-admin>
+
+<div class="container">
+  <div class="header">
+    <h2>Completed Events</h2>
+    <button (click)="goBack()" class="button">Back to Events</button>
+  </div>
+
+  <div *ngIf="isLoading">Loading...</div>
+  <div *ngIf="!isLoading && events.length === 0">No completed events found.</div>
+
+  <div class="events-container" *ngIf="!isLoading && events.length > 0">
+    <div *ngFor="let event of events" class="event-card">
+      <div class="event-header">
+        <h3>{{ event.eventName }}</h3>
+        <span class="event-status">{{ event.eventStatusName }}</span>
+      </div>
+      
+      <div class="event-details">
+        <p><strong>Description:</strong> {{ event.description }}</p>
+        <p><strong>Date:</strong> {{ event.date | date:'yyyy-MM-dd' }}</p>
+        <p><strong>Status:</strong> {{ event.eventStatusName }}</p>
+      </div>
+
+      <div *ngIf="event.jobs && event.jobs.length > 0" class="jobs-section">
+        <h4>Jobs:</h4>
+        <div *ngFor="let job of event.jobs" class="job-card">
+          <p><strong>Job Title:</strong> {{ job.jobTitle }}</p>
+          <p><strong>Job Description:</strong> {{ job.jobDescription }}</p>
+          <p><strong>Job Status:</strong> {{ job.jobStatusName }}</p>
+          
+          <div *ngIf="job.employees && job.employees.length > 0" class="employees-section">
+            <p><strong>Assigned Employees:</strong></p>
+            <ul>
+              <li *ngFor="let employee of job.employees">
+                {{ employee.firstName }} {{ employee.lastName }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

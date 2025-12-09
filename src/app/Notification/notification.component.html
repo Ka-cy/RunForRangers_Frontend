@@ -1,0 +1,33 @@
+<div class="notification-overlay" *ngIf="notification.showModal" (click)="onClose()">
+  <div class="notification-modal" (click)="$event.stopPropagation()">
+    <div class="notification-header">
+      <div class="notification-icon" [ngClass]="'icon-' + notification.type">
+        <i class="fas fa-check-circle" *ngIf="notification.type === 'success'"></i>
+        <i class="fas fa-times-circle" *ngIf="notification.type === 'error'"></i>
+        <i class="fas fa-exclamation-triangle" *ngIf="notification.type === 'warning'"></i>
+        <i class="fas fa-info-circle" *ngIf="notification.type === 'info'"></i>
+      </div>
+    </div>
+    
+    <div class="notification-body">
+      <h3 class="notification-title">{{ notification.title }}</h3>
+      <p class="notification-message">{{ notification.message }}</p>
+    </div>
+    
+    <div class="notification-actions">
+      <button 
+        class="btn btn-primary" 
+        [ngClass]="'btn-' + notification.type"
+        (click)="onAction()"
+        *ngIf="notification.actionButton">
+        {{ notification.actionButton }}
+      </button>
+      <button 
+        class="btn btn-secondary" 
+        (click)="onCancel()"
+        *ngIf="notification.cancelButton">
+        {{ notification.cancelButton }}
+      </button>
+    </div>
+  </div>
+</div>

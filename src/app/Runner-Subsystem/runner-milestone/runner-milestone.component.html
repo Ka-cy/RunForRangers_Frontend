@@ -1,0 +1,258 @@
+<app-nav-bar-default></app-nav-bar-default>
+
+<div class="container">
+  <section class="hero-banner" *ngIf="runner && !isLoading">
+    <div class="hero-content">
+      <h1 class="runner-name">{{ runner.user?.firstName }} {{ runner.user?.surname }}</h1>
+      <p class="runner-subtitle">🏃‍♂️ Running for Wildlife Conservation</p>
+      <div class="profile-image-container">
+        <img 
+          *ngIf="hasProfileImage()"
+          [src]="getImageUrl(runner.runnerImage)" 
+          (error)="handleImageError($event)" 
+          [alt]="(runner.user?.firstName || 'Unknown') + ' ' + (runner.user?.surname || 'Runner')"
+          class="profile-image"
+        />
+        <div class="default-avatar" *ngIf="!hasProfileImage()">
+          {{ getInitials(runner.user?.firstName, runner.user?.surname) }}
+        </div>
+      </div>
+    </div>
+    
+    <div class="stats-chips">
+      <div class="stat-chip target">
+        <span class="stat-value">R{{ runner.targetAmount | number:'1.2-2' }}</span>
+        <span class="stat-label">Target</span>
+      </div>
+      <div class="stat-chip raised">
+        <span class="stat-value">R{{ totalDonations | number:'1.2-2' }}</span>
+        <span class="stat-label">Raised</span>
+      </div>
+      <div class="stat-chip progress">
+        <span class="stat-value">{{ progressPercentage | number:'1.2-2' }}%</span>
+        <span class="stat-label">{{ getCompletionStatus() }}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="progress-donation-section" *ngIf="runner && !isLoading">
+    <div class="progress-card">
+      <h2 class="card-title">
+        <span class="title-icon">🎯</span>
+        Fundraising Progress
+      </h2>
+      <div class="progress-visualization">
+        <div class="circular-progress">
+          <svg viewBox="0 0 150 150">
+            <circle class="progress-bg" cx="75" cy="75" r="65"></circle>
+            <circle class="progress-fill" 
+                    cx="75" cy="75" r="65"
+                    [attr.stroke-dasharray]="circumference"
+                    [attr.stroke-dashoffset]="progressOffset"
+                    [style.stroke]="getProgressColor()">
+            </circle>
+          </svg>
+          <div class="progress-percentage">{{ progressPercentage | number:'1.2-2' }}%</div>
+        </div>
+        <div class="progress-status">{{ getCompletionStatus() }}</div>
+      </div>
+      
+      <div class="progress-stats">
+        <div class="progress-stat">
+          <div class="progress-stat-value">R{{ totalDonations | number:'1.2-2' }}</div>
+          <div class="progress-stat-label">Total Raised</div>
+        </div>
+        <div class="progress-stat">
+          <div class="progress-stat-value">R{{ (runner.targetAmount - totalDonations) | number:'1.2-2' }}</div>
+          <div class="progress-stat-label">Remaining</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="donation-card">
+      <h2 class="card-title">
+        <span class="title-icon">💰</span>
+        Support Your Own Cause
+      </h2>
+      <p class="donation-description">
+        Boost your fundraising momentum by making a personal contribution to your wildlife conservation mission.
+      </p>
+      
+      <div class="donation-form">
+        <div class="amount-input-group">
+          <span class="currency-symbol">R</span>
+          <input 
+            type="number" 
+            class="amount-input" 
+            [(ngModel)]="donationAmount" 
+            placeholder="Enter amount"
+            min="1"
+            step="0.01"
+          >
+        </div>
+        
+        <div class="quick-amounts">
+          <button class="quick-amount-btn" (click)="setQuickAmount(100)" [class.active]="donationAmount === 100">R100</button>
+          <button class="quick-amount-btn" (click)="setQuickAmount(250)" [class.active]="donationAmount === 250">R250</button>
+          <button class="quick-amount-btn" (click)="setQuickAmount(500)" [class.active]="donationAmount === 500">R500</button>
+          <button class="quick-amount-btn" (click)="setQuickAmount(1000)" [class.active]="donationAmount === 1000">R1000</button>
+        </div>
+
+        <button class="donate-btn" 
+                (click)="submitSelfDonation()" 
+                [disabled]="!donationAmount || donationAmount <= 0 || isDonating">
+          <span class="btn-icon">❤️</span>
+          <span *ngIf="!isDonating">Donate Now</span>
+          <span *ngIf="isDonating">Processing...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-donations-section" *ngIf="runner && !isLoading">
+    <div class="runner-info-card">
+      <h2 class="card-title">
+        <span class="title-icon">📋</span>
+        Runner Profile
+      </h2>
+      <div class="info-grid">
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-icon">🌍</span>
+            <div class="info-content">
+              <span class="info-label">Nationality</span>
+              <span class="info-value">{{ runner.nationality || 'Not specified' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">🏠</span>
+            <div class="info-content">
+              <span class="info-label">Country of Residence</span>
+              <span class="info-value">{{ runner.countryOfResidence || 'Not specified' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-icon">👟</span>
+            <div class="info-content">
+              <span class="info-label">Shoe Size</span>
+              <span class="info-value">{{ runner.shoeSize || 'Not specified' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">👕</span>
+            <div class="info-content">
+              <span class="info-label">Clothing Size</span>
+              <span class="info-value">{{ runner.clothingSize || 'Not specified' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-icon">📱</span>
+            <div class="info-content">
+              <span class="info-label">Contact Number</span>
+              <span class="info-value">{{ runner.user?.cellphone || 'Not provided' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">✉️</span>
+            <div class="info-content">
+              <span class="info-label">Email Address</span>
+              <span class="info-value">{{ runner.user?.email || 'Not provided' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-item full-width">
+            <span class="info-icon">🚨</span>
+            <div class="info-content">
+              <span class="info-label">Allergies</span>
+              <span class="info-value">{{ runner.allergies || 'None reported' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-item full-width">
+            <span class="info-icon">🏥</span>
+            <div class="info-content">
+              <span class="info-label">Medical History</span>
+              <span class="info-value">{{ runner.medicalHistory || 'None reported' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="donations-card">
+      <h2 class="card-title">
+        <span class="title-icon">💝</span>
+        Recent Donations
+      </h2>
+      
+      <div class="donations-summary" *ngIf="processedDonations && processedDonations.length > 0">
+        <div class="summary-stats">
+          <div class="summary-item">
+            <span class="summary-number">{{ processedDonations.length }}</span>
+            <span class="summary-label">Total Donations</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-number">R{{ (totalDonations / (processedDonations.length || 1)) | number:'1.2-2' }}</span>
+            <span class="summary-label">Average Amount</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="donations-list" *ngIf="processedDonations && processedDonations.length > 0">
+        <div class="donation-item" *ngFor="let donation of processedDonations.slice(0, 5); trackBy: trackByDonationId">
+          <div class="donation-content">
+            <div class="donor-section">
+              <div class="donor-avatar">
+                <span>{{ getDonorInitials(donation.donorName) }}</span>
+              </div>
+              <div class="donor-details">
+                <span class="donor-name">{{ donation.donorName }}</span>
+                <span class="donation-date">{{ donation.formattedDate }}</span>
+              </div>
+            </div>
+            <div class="donation-amount-section">
+              <span class="donation-amount">R{{ donation.amount | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="view-all-donations" *ngIf="processedDonations.length > 5">
+          <button class="view-all-btn">
+            View All {{ processedDonations.length }} Donations
+          </button>
+        </div>
+      </div>
+
+      <div class="empty-donations" *ngIf="!processedDonations || processedDonations.length === 0">
+        <div class="empty-icon">🎁</div>
+        <h3>No donations yet</h3>
+        <p>Be the first to support your own cause! Your personal contribution can inspire others to donate.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-section" *ngIf="runner && !isLoading">
+    <button class="action-btn secondary" (click)="goBack()">
+      <span class="btn-icon">←</span>
+      Back to Dashboard
+    </button>
+    <button class="action-btn primary" (click)="navigateToShop()">
+      <span class="btn-icon">🛒</span>
+      Shop for Gear
+    </button>
+  </div>
+
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+  </div>
+</div>

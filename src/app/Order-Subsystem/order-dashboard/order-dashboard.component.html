@@ -1,0 +1,222 @@
+<div class="order-dashboard">
+  <!-- Sidebar Navigation -->
+  <app-nav-bar-admin></app-nav-bar-admin>
+
+  <!-- Main Content Area -->
+  <div class="content-area">
+    <!-- Page Header with Stats -->
+    <div class="page-header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>Order Dashboard</h1>
+        <div class="col">
+         <app-help-button category="orders"></app-help-button>
+      </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <button class="btn btn-success" (click)="exportToExcel()" title="Export orders to Excel">
+            <i class="fas fa-file-excel" style="margin-right: 8px;"></i>Export Excel
+          </button>
+          <button class="btn btn-info" (click)="exportToCSV()" title="Export orders to CSV">
+            <i class="fas fa-file-csv" style="margin-right: 8px;"></i>Export CSV
+          </button>
+          <button
+            class="print-btn"
+            (click)="printReport()"
+            [disabled]="isGeneratingPDF"
+            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+            <i class="fas fa-file-pdf" style="margin-right: 8px;"></i>
+            {{ isGeneratingPDF ? 'Generating...' : 'Print Report' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- PDF Progress Indicator -->
+      <div *ngIf="isGeneratingPDF" style="margin-top: 10px; padding: 10px; background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 6px; color: #0369a1;">
+        <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>
+        {{ pdfProgress }}
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon bg-primary">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ getTotalOrders() }}</h3>
+            <p>Total Orders</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-success">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="stat-content">
+            <h3>R{{ getTotalRevenue() | number: '1.2-2' }}</h3>
+            <p>Total Revenue</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-warning">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ getPendingOrders() }}</h3>
+            <p>Pending Orders</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-info">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ getCompletedOrders() }}</h3>
+            <p>Completed Orders</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Chart Section -->
+      <div class="chart-section">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Orders Over Time</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="ordersChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters Section -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label for="statusFilter">Order Status:</label>
+          <select
+            id="statusFilter"
+            [(ngModel)]="selectedStatus"
+            (change)="onStatusFilter()"
+            class="filter-select">
+            <option value="">All Statuses</option>
+            <option *ngFor="let status of orderStatuses" [value]="status.orderStatusName">
+              {{ status.orderStatusName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="paymentStatusFilter">Payment Status:</label>
+          <select
+            id="paymentStatusFilter"
+            [(ngModel)]="selectedPaymentStatus"
+            (change)="onPaymentStatusFilter()"
+            class="filter-select">
+            <option value="">All Payment Statuses</option>
+            <option *ngFor="let status of paymentStatuses" [value]="status.paymentStatusName">
+              {{ status.paymentStatusName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="results-info">
+          <span>Showing {{ filteredOrders.length }} of {{ orders.length }} orders</span>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading orders...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error" class="error-container">
+        <p>{{ error }}</p>
+        <button class="retry-btn" (click)="loadOrders()">Retry</button>
+      </div>
+
+    <!-- Orders Table -->
+    <div *ngIf="!isLoading && !error" class="table-container">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th (click)="sortBy('orderId')" class="sortable">
+              Order ID {{ getSortIcon('orderId') }}
+            </th>
+            <th (click)="sortBy('createdAt')" class="sortable">
+              Date {{ getSortIcon('createdAt') }}
+            </th>
+            <th>Customer</th>
+            <th (click)="sortBy('totalAmount')" class="sortable">
+              Total {{ getSortIcon('totalAmount') }}
+            </th>
+            <th>Order Status</th>
+            <th>Payment Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of filteredOrders" class="table-row">
+            <td class="table-cell">
+              <span class="order-id">#{{ order.orderId }}</span>
+            </td>
+            <td class="table-cell">
+              <span class="date">{{ formatDate(order.createdAt) }}</span>
+            </td>
+            <td class="table-cell">
+              <div class="customer-info">
+                <span class="customer-name">{{ order.user.firstName }} {{ order.user.surname }}</span>
+                <span class="customer-email">{{ order.user.email }}</span>
+              </div>
+            </td>
+            <td class="table-cell">
+              <span class="order-total">R{{ order.totalAmount | number: '1.2-2' }}</span>
+            </td>
+            <td class="table-cell">
+              <select
+                [value]="order.orderStatusId"
+                (change)="onOrderStatusChange(order.orderId, $event)"
+                class="status-select"
+                [ngClass]="getStatusBadgeClass(order.orderStatusName || '')">
+                <option *ngFor="let status of orderStatuses" [value]="status.orderStatusId">
+                  {{ status.orderStatusName }}
+                </option>
+              </select>
+            </td>
+            <td class="table-cell">
+              <!-- Note: Payment status would need to be loaded from invoice data -->
+              <span class="payment-status-badge payment-default">
+                {{ selectedOrderInvoice?.paymentStatus || 'Unknown' }}
+              </span>
+            </td>
+            <td class="table-cell actions-cell">
+              <div class="action-buttons">
+                <button class="view-btn" (click)="viewOrderDetails(order.orderId)" title="View Details">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button
+                  *ngIf="isOrderCompletedForDelivery(order)"
+                  class="delivery-btn"
+                  title="Available for Delivery">
+                  <i class="fas fa-truck"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+        <!-- Empty State -->
+        <div *ngIf="filteredOrders.length === 0" class="empty-state">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <h3>No orders found</h3>
+          <p>      <p>{{ searchTerm || selectedStatus || selectedPaymentStatus ? 'Try adjusting your filters' :
+ 'No orders have been placed yet' }}</p>
+      </div>
+      </div>
+
+</div>
+
+<app-notification-modal></app-notification-modal>

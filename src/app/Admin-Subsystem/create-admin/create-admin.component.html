@@ -1,0 +1,391 @@
+<!-- Create Admin Section -->
+<div class="nav-bar">
+  <div class="back-link" (click)="back()">
+    <i class="fas fa-arrow-left"></i>
+    <span>Back to Dashboard</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="form-card">
+    <div class="profile-header">
+      <div class="header-icon">
+        <i class="fas fa-user-shield "></i>
+      </div>
+      <h2>Create New Admin</h2>
+      <p>Add a new administrator to your system</p>
+    </div>
+
+    <form  #adminForm="ngForm" (ngSubmit)="createAdmin()" class="admin-form">
+      
+      <!-- Profile Image Section -->
+      <div class="form-section image-section" style="background: linear-gradient(135deg, #fff8e1, #ffe0b3); border: 2px solid #ff8c00; margin-bottom: 25px;">
+        <div class="section-title" style="color: #ff8c00; border-bottom-color: #ff8c00;">
+          <i class="fas fa-camera" style="color: #ff8c00;"></i>
+          Profile Image
+        </div>
+        
+        <div class="image-upload-container" style="display: flex; gap: 25px; align-items: flex-start; flex-wrap: wrap;">
+          <div class="image-preview-wrapper" style="position: relative; flex-shrink: 0;">
+            <!-- Clickable Image Preview -->
+            <div class="image-preview" 
+                 [class.no-image]="!imagePreview"
+                 (click)="triggerFileUpload()"
+                 style="width: 150px; height: 150px; border-radius: 15px; overflow: hidden; border: 3px solid #e5e7eb; background: #f9fafb; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; cursor: pointer; position: relative;"
+                 (mouseenter)="showImageOverlay = true"
+                 (mouseleave)="showImageOverlay = false">
+              
+              <img *ngIf="imagePreview" 
+                   [src]="imagePreview" 
+                   alt="Profile Preview" 
+                   style="width: 100%; height: 100%; object-fit: cover;" />
+              
+              <div *ngIf="!imagePreview" 
+                   class="no-image-placeholder"
+                   style="display: flex; flex-direction: column; align-items: center; gap: 8px; color: #ff8c00; text-align: center;">
+                <i class="fas fa-user" style="font-size: 40px; color: #ff8c00;"></i>
+                <span style="font-size: 12px; font-weight: 500; color: #ff8c00;">Click to add image</span>
+              </div>
+
+              <!-- Hover overlay for existing image -->
+              <div class="image-overlay" 
+                   *ngIf="imagePreview && showImageOverlay"
+                   style="position: absolute; top: 0; right: 0; left: 0; bottom: 0; background: rgba(255, 140, 0, 0.7); display: flex; align-items: center; justify-content: center; border-radius: 12px; transition: all 0.3s ease;">
+                <div style="display: flex; gap: 10px;">
+                  <button type="button" 
+                          class="change-image-btn" 
+                          (click)="$event.stopPropagation(); triggerFileUpload()" 
+                          title="Change Image"
+                          style="background: #ff8c00; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; font-size: 16px;">
+                    <i class="fas fa-camera"></i>
+                  </button>
+                  <button type="button" 
+                          class="remove-image-btn" 
+                          (click)="$event.stopPropagation(); removeImage()" 
+                          title="Remove Image"
+                          style="background: #e74c3c; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; font-size: 16px;">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="image-upload-controls" style="flex: 1; display: flex; flex-direction: column; gap: 15px; min-width: 200px;">
+            <!-- Hidden file input -->
+            <input type="file" 
+                   #fileInput
+                   id="imageUpload" 
+                   accept="image/*" 
+                   (change)="onFileSelected($event)"
+                   style="display: none;">
+            
+            <label for="imageUpload" 
+                   class="upload-btn"
+                   style="display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: linear-gradient(135deg, #ff8c00, #ffa500); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; width: fit-content; box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);">
+              <i class="fas fa-upload"></i>
+              Choose Image
+            </label>
+            
+            <div class="upload-info" style="display: flex; flex-direction: column; gap: 4px;">
+              <small style="color: #ff8c00; font-size: 12px; font-weight: 500;">Click on the image or use the button above</small>
+              <small style="color: #6b7280; font-size: 12px;">Maximum file size: 5MB</small>
+              <small style="color: #6b7280; font-size: 12px;">Supported formats: JPG, PNG, GIF</small>
+            </div>
+
+            <!-- Optional: Debug info - Remove this after testing -->
+            <div style="background: #fff8e1; border: 1px solid #ff8c00; padding: 10px; border-radius: 8px; font-size: 12px;">
+              <strong style="color: #ff8c00;">Image Status:</strong><br>
+              Selected File: {{ selectedFile?.name || 'None' }}<br>
+              Image Preview: {{ imagePreview ? 'Available' : 'Not available' }}<br>
+              Upload Status: {{ isImageUploading ? 'Uploading' : 'Ready' }}
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="imageError" 
+             class="error-message"
+             style="color: #e74c3c; font-size: 12px; margin-top: 15px; display: flex; align-items: center; gap: 5px;">
+          <i class="fas fa-exclamation-triangle"></i>
+          {{ imageError }}
+        </div>
+      </div>
+
+      <!-- Personal Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-user"></i>
+          Personal Information
+        </h3>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="newFirstName" class="required">First Name</label>
+            <div class="input-wrapper">
+              <i class="fas fa-user"></i>
+              <input 
+                [(ngModel)]="admin.firstName" 
+                type="text" 
+                id="newFirstName" 
+                name="newFirstName" 
+                required
+                #firstName="ngModel"
+                placeholder="Enter first name"
+                [class.invalid]="firstName.invalid && firstName.touched">
+            </div>
+            <div class="error-message" *ngIf="firstName.invalid && firstName.touched">
+              First name is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="newLastName" class="required">Surname</label>
+            <div class="input-wrapper">
+              <i class="fas fa-user"></i>
+              <input 
+                [(ngModel)]="admin.surname" 
+                type="text" 
+                id="newLastName" 
+                name="newLastName" 
+                required
+                #lastName="ngModel"
+                placeholder="Enter surname"
+                [class.invalid]="lastName.invalid && lastName.touched">
+            </div>
+            <div class="error-message" *ngIf="lastName.invalid && lastName.touched">
+              Surname is required
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-address-card"></i>
+          Contact Information
+        </h3>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="newEmail" class="required">Email Address</label>
+            <div class="input-wrapper">
+              <i class="fas fa-envelope"></i>
+              <input 
+                [(ngModel)]="admin.email" 
+                type="email" 
+                id="newEmail" 
+                name="newEmail" 
+                required
+                email
+                #email="ngModel"
+                placeholder="Enter email address"
+                [class.invalid]="email.invalid && email.touched">
+            </div>
+            <div class="error-message" *ngIf="email.invalid && email.touched">
+              <span *ngIf="email.errors?.['required']">Email is required</span>
+              <span *ngIf="email.errors?.['email']">Please enter a valid email</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="newPhone" class="required">Phone Number</label>
+            <div class="input-wrapper">
+              <i class="fas fa-phone"></i>
+              <input 
+                [(ngModel)]="admin.cellphone" 
+                type="tel" 
+                id="newPhone" 
+                name="newPhone" 
+                required
+                #phone="ngModel"
+                placeholder="Enter phone number"
+                [class.invalid]="phone.invalid && phone.touched">
+            </div>
+            <div class="error-message" *ngIf="phone.invalid && phone.touched">
+              Phone number is required
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Password Section -->
+      <div class="form-section password-section">
+        <h3 class="section-title">
+          <i class="fas fa-key"></i>
+          Default Password Settings
+        </h3>
+        
+        <div class="password-note">
+          <i class="fas fa-info-circle"></i>
+          New admins will be assigned the default password "administrator" and must change thereafter.
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="newPassword">Default Password</label>
+            <div class="input-wrapper">
+              <i class="fas fa-lock"></i>
+              <input 
+                [(ngModel)]="admin.password" 
+                type="password" 
+                id="newPassword" 
+                name="newPassword" 
+                value="administrator"
+                readonly
+                placeholder="Default password">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="newConfirmPassword">Confirm Password</label>
+            <div class="input-wrapper">
+              <i class="fas fa-lock"></i>
+              <input 
+                [(ngModel)]="admin.confirmPassword" 
+                type="password" 
+                id="newConfirmPassword" 
+                name="newConfirmPassword" 
+                value="administrator"
+                readonly
+                placeholder="Confirm password">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role Selection Section -->
+      <div class="form-section role-section">
+        <h3 class="section-title">
+          <i class="fas fa-user-cog"></i>
+          Role Assignment
+        </h3>
+        
+        <div class="form-group">
+          <label for="newRole" class="required">Administrator Role</label>
+          <div class="input-wrapper">
+            <i class="fas fa-user-shield"></i>
+            <select 
+              [(ngModel)]="admin.roleId" 
+              id="newRole" 
+              name="newRole" 
+              required
+              (change)="onRoleChange()">
+              <option value="">Select a role...</option>
+              <option value="3">Restricted Admin</option>
+              <option value="4">Head Admin</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Updated Admin Permissions Section -->
+      <div *ngIf="admin.roleId == 3" class="permission-section">
+        <h3 class="section-title">
+          <i class="fas fa-tasks"></i>
+          Manage Admin Role Permissions
+        </h3>
+
+        <div class="modern-checkbox-group">
+          <label class="modern-checkbox-item" [class.checked]="admin.EnableEventCRUD">
+            <div class="custom-checkbox">
+              <input type="checkbox" [(ngModel)]="admin.EnableEventCRUD" name="EnableEventCRUD" id="eventCRUD">
+              <span class="checkmark"></span>
+            </div>
+            <span class="permission-text">Enable ability to Create, Delete, Update & View Events</span>
+          </label>
+
+          <label class="modern-checkbox-item" [class.checked]="admin.EnableProductCRUD">
+            <div class="custom-checkbox">
+              <input type="checkbox" [(ngModel)]="admin.EnableProductCRUD" name="EnableProductCRUD" id="productCRUD">
+              <span class="checkmark"></span>
+            </div>
+            <span class="permission-text">Enable ability to Create, Delete, Update & View Products</span>
+          </label>
+
+          <label class="modern-checkbox-item" [class.checked]="admin.EnableDonationCRUD">
+            <div class="custom-checkbox">
+              <input type="checkbox" [(ngModel)]="admin.EnableDonationCRUD" name="EnableDonationCRUD" id="donationCRUD">
+              <span class="checkmark"></span>
+            </div>
+            <span class="permission-text">Enable ability to Create, Delete, Update & View Donations</span>
+          </label>
+
+          <label class="modern-checkbox-item" [class.checked]="admin.EnableExpenditureCRUD">
+            <div class="custom-checkbox">
+              <input type="checkbox" [(ngModel)]="admin.EnableExpenditureCRUD" name="EnableExpenditureCRUD" id="expenditureCRUD">
+              <span class="checkmark"></span>
+            </div>
+            <span class="permission-text">Enable ability to Create, Delete, Update & View Expenditures</span>
+          </label>
+
+          <label class="modern-checkbox-item" [class.checked]="admin.EnableInventoryCRUD">
+            <div class="custom-checkbox">
+              <input type="checkbox" [(ngModel)]="admin.EnableInventoryCRUD" name="EnableInventoryCRUD" id="inventoryCRUD">
+              <span class="checkmark"></span>
+            </div>
+            <span class="permission-text">Enable ability to Create, Delete, Update & View Inventory</span>
+          </label>
+
+          <!-- Additional permissions from the second image -->
+          <label class="modern-checkbox-item" [class.checked]="admin.EnableDeliveryCRUD">
+            <div class="custom-checkbox">
+              <input type="checkbox" [(ngModel)]="admin.EnableDeliveryCRUD" name="EnableDeliveryCRUD" id="deliveryCRUD">
+              <span class="checkmark"></span>
+            </div>
+            <span class="permission-text">Enable ability to Create, Delete, Update & View Delivery</span>
+          </label>
+
+          <label class="modern-checkbox-item" [class.checked]="admin.EnableEmployeeCRUD">
+            <div class="custom-checkbox">
+              <input type="checkbox" [(ngModel)]="admin.EnableEmployeeCRUD" name="EnableEmployeeCRUD" id="employeeCRUD">
+              <span class="checkmark"></span>
+            </div>
+            <span class="permission-text">Enable ability to Create, Delete, Update & View Employees</span>
+          </label>
+
+          <label class="modern-checkbox-item" [class.checked]="admin.EnableOrderCRUD">
+            <div class="custom-checkbox">
+              <input type="checkbox" [(ngModel)]="admin.EnableOrderCRUD" name="EnableOrderCRUD" id="orderCRUD">
+              <span class="checkmark"></span>
+            </div>
+            <span class="permission-text">Enable ability to Create, Delete, Update & View Orders</span>
+          </label>
+
+          <label class="modern-checkbox-item" [class.checked]="admin.EnableRunnerCRUD">
+            <div class="custom-checkbox">
+              <input type="checkbox" [(ngModel)]="admin.EnableRunnerCRUD" name="EnableRunnerCRUD" id="runnerCRUD">
+              <span class="checkmark"></span>
+            </div>
+            <span class="permission-text">Enable ability to Create, Delete, Update & View Runner</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-save" 
+          [disabled]="!adminForm.valid || isLoading || isImageUploading"
+          [class.loading]="isLoading || isImageUploading">
+          <i class="fas fa-plus-circle" *ngIf="!isLoading && !isImageUploading"></i>
+          <i class="fas fa-spinner fa-spin" *ngIf="isLoading || isImageUploading"></i>
+          <span>Create Admin</span>
+        </button>
+        
+        <button 
+          type="button" 
+          class="btn btn-cancel" 
+          (click)="clear()"
+          [disabled]="isLoading || isImageUploading">
+          <i class="fas fa-times-circle"></i>
+          <span>Cancel</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add the notification modal component -->
+<app-notification-modal></app-notification-modal>

@@ -1,0 +1,193 @@
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<div class="content-area">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+      </button>
+      <h2 class="page-title">Manage Couriers</h2>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button type="button" class="btn btn-outline-danger btn-sm ms-3" (click)="loadCouriers()">
+      <i class="fas fa-redo me-1"></i>Retry
+    </button>
+  </div>
+
+  <div class="row">
+    <!-- Courier Form -->
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-plus-circle me-2"></i>
+            {{ isEditing ? 'Edit Courier' : 'Add New Courier' }}
+          </h5>
+        </div>
+            <div class="card-body">
+              <form [formGroup]="courierForm" (ngSubmit)="onSubmit()">
+                <div class="form-group mb-3">
+                  <label for="courierName" class="form-label required">Courier Name</label>
+                  <input 
+                    type="text" 
+                    id="courierName"
+                    class="form-control"
+                    formControlName="courierName"
+                    [class.is-invalid]="isFieldInvalid('courierName')"
+                    placeholder="Enter courier name">
+                  <div class="invalid-feedback">
+                    {{ getFieldError('courierName') }}
+                  </div>
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="contactNumber" class="form-label required">Contact Number</label>
+                  <input 
+                    type="tel" 
+                    id="contactNumber"
+                    class="form-control"
+                    formControlName="contactNumber"
+                    [class.is-invalid]="isFieldInvalid('contactNumber')"
+                    placeholder="Enter 10-digit phone number">
+                  <div class="invalid-feedback">
+                    {{ getFieldError('contactNumber') }}
+                  </div>
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="email" class="form-label required">Email</label>
+                  <input 
+                    type="email" 
+                    id="email"
+                    class="form-control"
+                    formControlName="email"
+                    [class.is-invalid]="isFieldInvalid('email')"
+                    placeholder="Enter email address">
+                  <div class="invalid-feedback">
+                    {{ getFieldError('email') }}
+                  </div>
+                </div>
+
+                <div class="form-group mb-4">
+                  <label for="imageUrl" class="form-label">Image URL (Optional)</label>
+                  <input 
+                    type="url" 
+                    id="imageUrl"
+                    class="form-control"
+                    formControlName="imageUrl"
+                    placeholder="Enter image URL">
+                </div>
+
+                <div class="action-buttons">
+                  <button 
+                    type="submit" 
+                    class="btn btn-primary me-2"
+                    [disabled]="courierForm.invalid || isSaving">
+                    <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <i *ngIf="!isSaving" class="fas fa-save me-2"></i>
+                    {{ isSaving ? 'Saving...' : (isEditing ? 'Update' : 'Create') }}
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-secondary"
+                    (click)="resetForm()"
+                    [disabled]="isSaving">
+                    <i class="fas fa-times me-2"></i>Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Couriers List -->
+        <div class="col-md-8">
+          <div class="card shadow-sm">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-list me-2"></i>Couriers List
+              </h5>
+              <div class="search-container">
+                <input 
+                  type="text" 
+                  placeholder="Search couriers..."
+                  class="search-input"
+                  [(ngModel)]="searchTerm"
+                  (input)="onSearch()">
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Loading State -->
+              <div *ngIf="isLoading" class="loading-container">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+                <p>Loading couriers...</p>
+              </div>
+
+              <!-- Couriers Table -->
+              <div *ngIf="!isLoading" class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Name</th>
+                      <th>Contact</th>
+                      <th>Email</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let courier of filteredCouriers">
+                      <td>
+                        <div class="courier-info">
+                          <img *ngIf="courier.imageUrl" 
+                               [src]="courier.imageUrl" 
+                               [alt]="courier.courierName"
+                               class="courier-avatar">
+                          <div *ngIf="!courier.imageUrl" class="courier-avatar-placeholder">
+                            <i class="fas fa-user"></i>
+                          </div>
+                          <span class="courier-name">{{ courier.courierName }}</span>
+                        </div>
+                      </td>
+                      <td>{{ courier.contactNumber }}</td>
+                      <td>{{ courier.email }}</td>
+                      <td>
+                        <div class="action-buttons">
+                          <button 
+                            class="btn btn-sm btn-outline-primary me-1"
+                            (click)="editCourier(courier)"
+                            title="Edit courier">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button 
+                            class="btn btn-sm btn-outline-danger"
+                            (click)="deleteCourier(courier)"
+                            title="Delete courier">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div *ngIf="filteredCouriers.length === 0" class="empty-state">
+                  <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+                  <h5>No couriers found</h5>
+                  <p class="text-muted">{{ searchTerm ? 'No couriers match your search criteria.' : 'Start by adding your first courier.' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+
+<app-notification-modal></app-notification-modal>

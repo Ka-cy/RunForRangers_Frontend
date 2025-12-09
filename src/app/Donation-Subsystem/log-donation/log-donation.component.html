@@ -1,0 +1,70 @@
+<div class="container">
+  <div class="sidebar">
+    <div class="logo">
+      <h1>RunForRangers</h1>
+      <p>Admin Dashboard</p>
+    </div>
+    <app-nav-bar-admin></app-nav-bar-admin>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Search...">
+      </div>
+      <div class="user-info">
+        <div class="user-avatar">HB</div>
+        <div class="user-details">
+          <h4>Harry Bailey</h4>
+          <p>Admin</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <h2 class="page-title">Log Donation</h2>
+      <div class="form-container">
+        <div class="donation-types">
+          <div class="donation-type" [class.selected]="selectedType === 'Runner'" (click)="selectDonationType('Runner')">
+            <div class="type-checkbox" [class.selected]="selectedType === 'Runner'">
+              <span class="checkmark">✓</span>
+            </div>
+            <span class="type-label">Runner Donation</span>
+          </div>
+          <div class="donation-type" [class.selected]="selectedType === 'Organisation'" (click)="selectDonationType('Organisation')">
+            <div class="type-checkbox" [class.selected]="selectedType === 'Organisation'">
+              <span class="checkmark">✓</span>
+            </div>
+            <span class="type-label">Organisation Donation</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="amount">Amount</label>
+          <input type="number" id="amount" class="form-input" [(ngModel)]="donation.amount" required min="0.01" step="0.01">
+        </div>
+
+        <div class="form-group" *ngIf="selectedType === 'Runner'">
+          <label class="form-label" for="runner">Select Runner</label>
+          <select id="runner" class="form-input" (change)="onRunnerSelect($event)" [(ngModel)]="selectedRunnerId">
+            <option value="" disabled>Select a runner</option>
+            <option *ngFor="let runner of runners" [value]="runner.userId">
+              {{ runner.firstName  }} {{ runner.surname }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="donorName">Donor Name</label>
+          <input type="text" id="donorName" class="form-input" [(ngModel)]="donation.donorName" required maxlength="100">
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" (click)="onSubmit()">Save</button>
+          <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,113 @@
+<div class="runner-list-container">
+  <div class="list-header">
+    <div class="header-col photo">Photo</div>
+    <div class="header-col name">Name</div>
+    <div class="header-col details">Details</div>
+    <div class="header-col progress">Progress</div>
+    <div class="header-col status">Status</div>
+    <div class="header-col actions">Actions</div>
+  </div>
+  
+  <div class="list-body">
+    <div class="runner-row" *ngFor="let runner of runners">
+      <!-- Photo Column -->
+      <div class="row-col photo">
+        <div class="runner-photo">
+          <img 
+            [src]="getImageUrl(runner.runnerImage)" 
+            (error)="handleImageError($event)" 
+            [alt]="runner.user?.firstName + ' ' + runner.user?.surname" />
+          <div class="status-indicator" [class.active]="runner.progressPercentage > 0"></div>
+        </div>
+      </div>
+      
+      <!-- Name Column -->
+      <div class="row-col name">
+        <div class="runner-name">
+          <h4>{{ runner.user?.firstName }} {{ runner.user?.surname }}</h4>
+          <p class="runner-id">ID: {{ runner.idNumber }}</p>
+        </div>
+      </div>
+      
+      <!-- Details Column -->
+      <div class="row-col details">
+        <div class="detail-item">
+          <span class="label">Nationality:</span>
+          <span class="value">{{ runner.nationality }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Phone:</span>
+          <span class="value">{{ runner.user?.cellphone }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Residence:</span>
+          <span class="value">{{ runner.countryOfResidence }}</span>
+        </div>
+      </div>
+      
+      <!-- Progress Column -->
+      <div class="row-col progress">
+        <div class="progress-info">
+          <div class="progress-header">
+            <span class="progress-label">Milestone Progress</span>
+            <span class="progress-percentage">{{ runner.progressPercentage | number:'1.0-2' }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="runner.progressPercentage"></div>
+          </div>
+          <div class="milestone-status" [class.reached]="runner.milestoneReached">
+            {{ runner.milestoneReached ? 'Milestone Reached' : 'In Progress' }}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Status Column -->
+      <div class="row-col status">
+        <div class="status-badge" [class.active]="runner.progressPercentage > 0">
+          {{ runner.progressPercentage > 0 ? 'Active' : 'Inactive' }}
+        </div>
+        <div class="additional-info">
+          <button class="medical-toggle" (click)="onToggleMedical(runner.userId)">
+            <i class="fas" [class.fa-plus-circle]="!runner.showMedical" [class.fa-minus-circle]="runner.showMedical"></i>
+            Medical Info
+          </button>
+        </div>
+      </div>
+      
+      <!-- Actions Column -->
+      <div class="row-col actions">
+        <div class="action-buttons">
+          <button class="btn-view" (click)="onViewRunner(runner.userId)">
+            <i class="fas fa-eye"></i>
+            View
+          </button>
+          <button class="btn-delete" (click)="onDeleteRunner(runner.userId)">
+            <i class="fas fa-trash-alt"></i>
+            Delete
+          </button>
+        </div>
+      </div>
+      
+      <!-- Expandable Medical Information -->
+      <div class="medical-row" [class.expanded]="runner.showMedical" *ngIf="runner.showMedical">
+        <div class="medical-content">
+          <h5>Medical Information</h5>
+          <div class="medical-details">
+            <div class="medical-item">
+              <strong>Allergies:</strong> {{ runner.allergies || 'None reported' }}
+            </div>
+            <div class="medical-item">
+              <strong>Medical History:</strong> {{ runner.medicalHistory || 'None reported' }}
+            </div>
+            <div class="medical-item">
+              <strong>Shoe Size:</strong> {{ runner.shoeSize }}
+            </div>
+            <div class="medical-item">
+              <strong>Clothing Size:</strong> {{ runner.clothingSize }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

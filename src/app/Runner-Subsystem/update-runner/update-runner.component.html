@@ -1,0 +1,196 @@
+<div class="container">
+  <!-- Navigation Bar -->
+  <app-nav-bar-default></app-nav-bar-default>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div *ngIf="isLoading" class="loading-overlay">
+      <div class="spinner-border"></div>
+    </div>
+    
+    <!-- Enhanced Form Container -->
+    <div class="form-container">
+      <!-- Professional Header -->
+      <div class="form-header">
+        <h1>Update Runner Profile</h1>
+      </div>
+
+      <!-- User Info Display -->
+      <div *ngIf="userInfoLoading" class="spinner-border" style="margin: 20px auto; display: block;"></div>
+      <div *ngIf="runner && !isLoading" class="user-info" style="padding: 20px; text-align: center; background: rgba(245, 158, 11, 0.1); margin: 20px; border-radius: 12px;">
+        <p style="color: #4a5568; font-weight: 600; margin: 0;"><strong>Name:</strong> {{ runner.user?.firstName }} {{ runner.user?.surname }}</p>
+      </div>
+
+      <form (ngSubmit)="saveRunner()" #runnerForm="ngForm">
+        <!-- Enhanced Profile Image Upload -->
+        <div class="form-group">
+          <label [class]="getLabelClass('ProfileImage')" for="runnerImage">Profile Image</label>
+          <div class="image-upload-container" style="text-align: center; margin: 20px 0;">
+            <input
+              type="file"
+              id="runnerImage"
+              name="runnerImage"
+              accept="image/jpeg,image/png,image/gif"
+              (change)="onFileSelected($event)"
+              [class]="getInputClass('ProfileImage')"
+              style="display: none;">
+            <div class="image-preview-container" (click)="triggerFileInput()" style="cursor: pointer; margin-bottom: 15px;">
+              <div *ngIf="!selectedImagePreview && !runner.runnerImage" class="upload-placeholder" style="width: 120px; height: 120px; border: 4px solid #f59e0b; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto; background: linear-gradient(135deg, #fefcf3, #fef7ed); color: #f59e0b; transition: all 0.3s ease;">
+                <i class="fas fa-camera" style="font-size: 24px; margin-bottom: 8px;"></i>
+                <span style="font-size: 12px; text-align: center; padding: 0 10px;">Click to upload</span>
+              </div>
+              <img *ngIf="selectedImagePreview" [src]="selectedImagePreview" alt="Profile preview" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #f59e0b; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.25);">
+              <img *ngIf="runner.runnerImage && !selectedImagePreview" [src]="runner.runnerImage" alt="Current profile" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #f59e0b; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.25);">
+            </div>
+            <div class="image-buttons" style="display: flex; gap: 10px; justify-content: center;">
+              <button type="button" class="btn btn-secondary" (click)="triggerFileInput()" style="padding: 10px 16px; font-size: 14px;">
+                {{ selectedImagePreview || runner.runnerImage ? 'Change Picture' : 'Upload Picture' }}
+              </button>
+              <button *ngIf="selectedImagePreview || runner.runnerImage" type="button" class="btn" (click)="removeImage()" style="background: #fef2f2; color: #dc2626; padding: 10px 16px; font-size: 14px; border: none; border-radius: 8px;">
+                Remove Picture
+              </button>
+            </div>
+          </div>
+          <div *ngIf="errorMessages['ProfileImage'] && isSubmitted" class="error-message">
+            {{ errorMessages['ProfileImage'] }}
+          </div>
+        </div>
+
+        <!-- ID Number -->
+        <div class="form-group">
+          <label [class]="getLabelClass('idNumber')" for="IDNumber">ID Number</label>
+          <input
+            type="text"
+            id="IDNumber"
+            name="IDNumber"
+            [(ngModel)]="runner.idNumber"
+            class="form-control"
+            placeholder="Enter your 13-digit ID number"
+            [ngClass]="getInputClass('idNumber')"
+            required />
+          <div *ngIf="errorMessages['idNumber'] && isSubmitted" class="error-message">
+            {{ errorMessages['idNumber'] }}
+          </div>
+        </div>
+
+        <!-- Country of Residence -->
+        <div class="form-group">
+          <label [class]="getLabelClass('countryOfResidence')" for="CountryOfResidence">Country of Residence</label>
+          <ng-select
+            [items]="countries"
+            bindLabel="countryName"
+            bindValue="countryName"
+            [(ngModel)]="runner.countryOfResidence"
+            name="CountryOfResidence"
+            [searchable]="true"
+            placeholder="Search and select your country"
+            [ngClass]="{'form-control': true, 'error-input': getInputClass('countryOfResidence') === 'error-input'}"
+            required>
+          </ng-select>
+          <div *ngIf="errorMessages['countryOfResidence'] && isSubmitted" class="error-message">
+            {{ errorMessages['countryOfResidence'] }}
+          </div>
+        </div>
+
+        <!-- Nationality -->
+        <div class="form-group">
+          <label [class]="getLabelClass('nationality')" for="Nationality">Nationality</label>
+          <ng-select
+            [items]="countries"
+            bindLabel="countryName"
+            bindValue="countryName"
+            [(ngModel)]="runner.nationality"
+            name="Nationality"
+            [searchable]="true"
+            placeholder="Search and select nationality"
+            [ngClass]="{'form-control': true, 'error-input': getInputClass('nationality') === 'error-input'}"
+            required>
+          </ng-select>
+          <div *ngIf="errorMessages['nationality'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['nationality'] }}
+          </div>
+        </div>
+
+        <!-- Allergies -->
+        <div class="form-group">
+          <label [class]="getLabelClass('allergies')" for="Allergies">Allergies</label>
+          <input
+            type="text"
+            id="Allergies"
+            name="Allergies"
+            [(ngModel)]="runner.allergies"
+            class="form-control"
+            placeholder="E.g. Peanuts, Latex"
+            [ngClass]="getInputClass('allergies')" />
+          <div *ngIf="errorMessages['allergies'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['allergies'] }}
+          </div>
+        </div>
+
+        <!-- Shoe Size -->
+        <div class="form-group">
+          <label [class]="getLabelClass('shoeSize')" for="ShoeSize">Shoe Size</label>
+          <input
+            type="text"
+            id="ShoeSize"
+            name="ShoeSize"
+            [(ngModel)]="runner.shoeSize"
+            class="form-control"
+            placeholder="E.g. 9 or 43"
+            [ngClass]="getInputClass('shoeSize')" />
+          <div *ngIf="errorMessages['shoeSize'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['shoeSize'] }}
+          </div>
+        </div>
+
+        <!-- Medical History -->
+        <div class="form-group">
+          <label [class]="getLabelClass('medicalHistory')" for="MedicalHistory">Medical History</label>
+          <textarea
+            id="MedicalHistory"
+            name="MedicalHistory"
+            [(ngModel)]="runner.medicalHistory"
+            class="form-control"
+            rows="3"
+            placeholder="Mention any conditions we should know about"
+            [ngClass]="getInputClass('medicalHistory')">
+          </textarea>
+          <div *ngIf="errorMessages['medicalHistory'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['medicalHistory'] }}
+          </div>
+        </div>
+
+        <!-- Clothing Size -->
+        <div class="form-group">
+          <label [class]="getLabelClass('clothingSize')" for="ClothingSize">Clothing Size</label>
+          <input
+            type="text"
+            id="ClothingSize"
+            name="ClothingSize"
+            [(ngModel)]="runner.clothingSize"
+            class="form-control"
+            placeholder="E.g. S, M, L, XL"
+            [ngClass]="getInputClass('clothingSize')" />
+          <div *ngIf="errorMessages['clothingSize'] && isSubmitted" class="invalid-feedback">
+            {{ errorMessages['clothingSize'] }}
+          </div>
+        </div>
+
+        <!-- General Error -->
+        <div *ngIf="errorMessages['general']" class="alert-danger">
+          {{ errorMessages['general'] }}
+        </div>
+
+        <!-- Enhanced Buttons -->
+        <div class="button-group">
+          <button type="submit" class="btn btn-primary" [disabled]="!runnerForm.form.valid || isLoading">
+            {{ isLoading ? 'Updating...' : 'Update Profile' }}
+          </button>
+          <button type="button" class="btn btn-secondary" routerLink="/runner-page">
+            Back to Runner Page
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>

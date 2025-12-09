@@ -1,0 +1,79 @@
+<div class="container">
+  <!-- Code input form -->
+  <div class="forget-password-card">
+    <h1 class="title">Enter Verification Code</h1>
+    <p class="subtitle">We've sent a 5-digit code to your email</p>
+    <form (ngSubmit)="onCodeSubmit()" #codeForm="ngForm">
+      <div class="code-input-group">
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          name="code1" 
+          [(ngModel)]="code[0]"
+          (input)="onCodeInput($event, 0)" 
+          (keydown)="onKeyDown($event, 0)" 
+          [disabled]="isVerifying" />
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          name="code2" 
+          [(ngModel)]="code[1]"
+          (input)="onCodeInput($event, 1)" 
+          (keydown)="onKeyDown($event, 1)" 
+          [disabled]="isVerifying" />
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          name="code3" 
+          [(ngModel)]="code[2]"
+          (input)="onCodeInput($event, 2)" 
+          (keydown)="onKeyDown($event, 2)" 
+          [disabled]="isVerifying" />
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          name="code4" 
+          [(ngModel)]="code[3]"
+          (input)="onCodeInput($event, 3)" 
+          (keydown)="onKeyDown($event, 3)" 
+          [disabled]="isVerifying" />
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          name="code5" 
+          [(ngModel)]="code[4]"
+          (input)="onCodeInput($event, 4)" 
+          (keydown)="onKeyDown($event, 4)" 
+          [disabled]="isVerifying" />
+      </div>
+      
+      <button 
+        type="submit" 
+        class="submit-btn" 
+        [disabled]="isSubmitDisabled()"
+        [class.loading]="isLoading">
+        <span *ngIf="!isLoading">Verify Code</span>
+        <span *ngIf="isLoading">
+          <i class="spinner" *ngIf="isLoading"></i>
+          Verifying...
+        </span>
+      </button>
+      
+      <button 
+        type="button" 
+        class="back-btn" 
+        (click)="goBack()"
+        [disabled]="isVerifying">
+        Back
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Add the notification modal component -->
+<app-notification-modal></app-notification-modal>

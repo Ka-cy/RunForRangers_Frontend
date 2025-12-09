@@ -1,0 +1,304 @@
+<!-- Nav Bar -->
+<app-nav-bar-default></app-nav-bar-default>
+
+<!-- Loading Overlay -->
+<div *ngIf="isLoading" class="loading-overlay">
+  <div class="spinner"></div>
+</div>
+
+<!-- Success Message -->
+<div *ngIf="showSuccessMessage" class="success-message-overlay">
+  <div class="success-message">
+    <i class="fas fa-check-circle"></i>
+    <span>Runner profile updated successfully!</span>
+  </div>
+</div>
+
+<!-- Error Message -->
+<div *ngIf="showErrorMessage" class="error-message-overlay">
+  <div class="error-message-popup">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>Failed to update profile. Please try again.</span>
+  </div>
+</div>
+
+<div class="container" *ngIf="!isLoading">
+  <div class="profile-card">
+    <!-- Header -->
+    <div class="profile-header">
+      <h2 class="profile-title">
+        <span class="title-icon">🏃‍♂️</span>
+        Edit Runner Profile
+      </h2>
+      <p class="profile-subtitle">Update your personal and running information</p>
+    </div>
+
+    <!-- Profile Photo Section -->
+    <div class="profile-photo-section">
+      <div class="photo-preview-container">
+        <label class="photo-label">Profile Photo</label>
+        <div class="profile-photo">
+          <div *ngIf="!selectedImagePreview" class="default-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <img 
+            *ngIf="selectedImagePreview" 
+            [src]="selectedImagePreview" 
+            alt="Profile preview" 
+            class="image-preview"
+            (error)="handleImageError($event)"
+            (load)="onImageLoad($event)">
+        </div>
+      </div>
+      
+      <!-- Hidden file input -->
+      <input 
+        type="file" 
+        id="profileImage" 
+        name="profileImage"
+        accept="image/*"
+        (change)="onFileSelected($event)"
+        style="display: none;">
+      
+      <!-- Image action buttons -->
+      <div class="photo-actions">
+        <button type="button" class="edit-photo-btn" (click)="triggerFileInput()">
+          {{ selectedImagePreview && selectedImagePreview !== userInfo?.profileImageBase64 ? 'Change Photo' : (selectedImagePreview ? 'Change Photo' : 'Add Photo') }}
+        </button>
+        
+        <button 
+          *ngIf="selectedImagePreview && selectedImagePreview !== userInfo?.profileImageBase64" 
+          type="button" 
+          class="remove-photo-btn" 
+          (click)="removeImage()">
+          Use Original Photo
+        </button>
+      </div>
+      
+      <!-- Image error message -->
+      <div *ngIf="objErrorMessage.ProfileImageError" class="error-message">
+        {{ objErrorMessage.ProfileImageError }}
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form class="profile-form" (ngSubmit)="onSave()">
+      
+      <!-- Personal Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="section-icon">👤</span>
+          Personal Information
+        </h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input 
+              type="text" 
+              id="firstName" 
+              name="firstName"
+              class="form-input"
+              [(ngModel)]="userUpdates.firstName"
+              required
+            />
+            <div *ngIf="objErrorMessage.FirstnameError" class="error-message">
+              {{ objErrorMessage.FirstnameError }}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input 
+              type="text" 
+              id="lastName" 
+              name="lastName"  
+              [(ngModel)]="userUpdates.surname"          
+              class="form-input"
+              required
+            />
+            <div *ngIf="objErrorMessage.SurnameError" class="error-message">
+              {{ objErrorMessage.SurnameError }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input 
+              type="email" 
+              id="email" 
+              class="form-input"
+              name="email"
+              [(ngModel)]="userUpdates.email"
+              required
+            />
+            <div *ngIf="objErrorMessage.EmailError" class="error-message">
+              {{ objErrorMessage.EmailError }}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="cellNumber">Cellphone Number *</label>
+            <input 
+              type="tel" 
+              id="cellNumber" 
+              class="form-input"
+              name="cellNumber"
+              [(ngModel)]="userUpdates.cellphone"
+              placeholder="e.g., 0812345678"
+              required
+            />
+            <div *ngIf="objErrorMessage.CellphoneError" class="error-message">
+              {{ objErrorMessage.CellphoneError }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Runner Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="section-icon">🏃‍♂️</span>
+          Runner Information
+        </h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nationality">Nationality</label>
+            <select 
+              id="nationality" 
+              name="nationality"
+              class="form-select"
+              [(ngModel)]="runnerUpdates.nationality"
+            >
+              <option value="">Select nationality</option>
+              <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+            </select>
+            <small *ngIf="runnerUpdates.nationality" class="current-value">
+              Current: {{ runnerUpdates.nationality }}
+            </small>
+          </div>
+          
+          <div class="form-group">
+            <label for="countryOfResidence">Country of Residence</label>
+            <select 
+              id="countryOfResidence" 
+              name="countryOfResidence"
+              class="form-select"
+              [(ngModel)]="runnerUpdates.countryOfResidence"
+            >
+              <option value="">Select country of residence</option>
+              <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+            </select>
+            <small *ngIf="runnerUpdates.countryOfResidence" class="current-value">
+              Current: {{ runnerUpdates.countryOfResidence }}
+            </small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="shoeSize">Shoe Size</label>
+            <select 
+              id="shoeSize" 
+              name="shoeSize"
+              class="form-select"
+              [(ngModel)]="runnerUpdates.shoeSize"
+            >
+              <option value="">Select shoe size</option>
+              <option *ngFor="let size of shoeSizes" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="clothingSize">Clothing Size</label>
+            <select 
+              id="clothingSize" 
+              name="clothingSize"
+              class="form-select"
+              [(ngModel)]="runnerUpdates.clothingSize"
+            >
+              <option value="">Select clothing size</option>
+              <option *ngFor="let size of clothingSizes" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="section-icon">🏥</span>
+          Medical Information
+        </h3>
+        
+        <div class="form-group">
+          <label for="allergies">Allergies</label>
+          <textarea 
+            id="allergies" 
+            name="allergies"
+            class="form-textarea"
+            [(ngModel)]="runnerUpdates.allergies"
+            placeholder="List any allergies you have (food, medication, environmental, etc.)"
+            rows="3"
+          ></textarea>
+          <small class="form-help">Please list all known allergies to help us provide appropriate support during events</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="medicalHistory">Medical History</label>
+          <textarea 
+            id="medicalHistory" 
+            name="medicalHistory"
+            class="form-textarea"
+            [(ngModel)]="runnerUpdates.medicalHistory"
+            placeholder="Describe any relevant medical conditions, injuries, or treatments"
+            rows="4"
+          ></textarea>
+          <small class="form-help">Include any medical conditions that may affect your participation in running events</small>
+        </div>
+      </div>
+
+      <!-- Password Change Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="section-icon">🔐</span>
+          Security
+        </h3>
+        
+        <div class="form-group">
+          <button type="button" class="btn btn-change-password" (click)="changePassword()">
+            <i class="fas fa-key"></i>
+            Change Password
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="save-btn"
+          [disabled]="isSaving"
+        >
+          <span *ngIf="!isSaving">Save Changes</span>
+          <span *ngIf="isSaving">
+            <i class="fas fa-spinner fa-spin"></i>
+            Saving...
+          </span>
+        </button>
+        
+        <button 
+          type="button" 
+          class="cancel-btn" 
+          (click)="onCancel()"
+          [disabled]="isSaving"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,87 @@
+
+  <app-nav-bar-admin></app-nav-bar-admin>
+  <app-notification-modal></app-notification-modal>
+ 
+  <div class="container">
+    <div class="header">
+      <h2>Expenditure</h2>
+      <div class="col">
+         <app-help-button category="expenditure"></app-help-button>
+      </div>
+      <div class="header-actions">
+        <div class="search-container">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Search by purpose..." 
+            [(ngModel)]="searchTerm" 
+            (input)="onSearchChange()"
+          />
+        </div>
+        <button (click)="addNew()" class="create-button">Create New Expenditure</button>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading">Loading...</div>
+    <div *ngIf="!isLoading && filteredExpenditures.length === 0 && searchTerm === ''">No expenditures found.</div>
+    <div *ngIf="!isLoading && filteredExpenditures.length === 0 && searchTerm !== ''">No expenditures found matching "{{ searchTerm }}".</div>
+
+    <table class="expenditure-table" *ngIf="!isLoading && filteredExpenditures.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Purpose</th>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Date Created</th>
+          <th>Receipt</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filteredExpenditures">
+          <td>{{ item.expenditureId }}</td>
+          <td>{{ item.purpose }}</td>
+          <td>{{ item.description }}</td>
+          <td>{{ item.amount | currency:'ZAR':'symbol' }}</td>
+          <td>{{ item.dateOfCreation | date:'shortDate' }}</td>
+          <td>
+            <div *ngIf="item.receiptImage && item.receiptImage.trim() !== ''; else noReceipt">
+              <!-- Image Preview -->
+              <div *ngIf="isImage(item.receiptImage)" class="d-flex align-items-center">
+                <img [src]="item.receiptImage" alt="Receipt" 
+                     style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border: 1px solid #ddd;" />
+                <span class="text-primary">Image Receipt</span>
+              </div>
+              <!-- PDF Download -->
+              <div *ngIf="isPDF(item.receiptImage)" class="d-flex align-items-center">
+                <button class="btn btn-sm btn-outline-primary" (click)="downloadPDF(item.receiptImage)">
+                  <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+              </div>
+              <!-- Fallback for old URL-based receipts -->
+              <div *ngIf="!isImage(item.receiptImage) && !isPDF(item.receiptImage)">
+                <a [href]="item.receiptImage" target="_blank" class="btn btn-sm btn-outline-primary">
+                  View Receipt
+                </a>
+              </div>
+            </div>
+            <ng-template #noReceipt>
+              <span class="text-muted">No Receipt</span>
+            </ng-template>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-warning me-2" (click)="EditExpenditureById(item)">
+              Edit
+            </button>
+            <button class="btn btn-sm btn-outline-danger" 
+                    (click)="deleteExpenditure(item.expenditureId)"
+                    [disabled]="actionLoading[item.expenditureId!]">
+              <span *ngIf="actionLoading[item.expenditureId!]" class="spinner-border spinner-border-sm me-1" role="status"></span>
+              {{ actionLoading[item.expenditureId!] ? 'Deleting...' : 'Delete' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>

@@ -1,0 +1,304 @@
+<!-- product-analytics.component.html -->
+<!--Template for the nav bars-->
+<div class="dashboard-container">
+    <div class="top-navbar">
+  <div class="search-container">
+    <input 
+      type="text" 
+      placeholder="Search analytics..." 
+      class="search-input"
+    >
+    <button class="search-button">
+      <svg class="search-icon" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="user-profile">
+    <div class="profile-icon">
+      <svg viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
+      </svg>
+    </div>
+  </div>
+</div>
+  
+  <app-nav-bar-admin></app-nav-bar-admin>
+
+  <div class="main-content">
+    <div class="content-header">
+      <h2>Product Analytics</h2>
+      <div class="action-buttons">
+        <!-- Management Buttons -->
+        <div class="management-buttons">
+          <button class="manage-btn" (click)="manageCategories()">
+            <span>📁</span> Manage Categories
+          </button>
+          <button class="manage-btn" (click)="manageTypes()">
+            <span>🏷️</span> Manage Types
+          </button>
+          <button class="manage-btn" (click)="manageColors()">
+            <span>🎨</span> Manage Colors
+          </button>
+          <button class="manage-btn" (click)="manageSizes()">
+            <span>📏</span> Manage Sizes
+          </button>
+        </div>
+        
+        <button class="btn btn-outline-primary" (click)="refreshAnalytics()" [disabled]="isLoading">
+          <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+        <button class="btn btn-success" (click)="printReport()" [disabled]="isLoading || isGeneratingPDF">
+          <i class="fas fa-file-pdf me-1"></i>
+          {{ isGeneratingPDF ? 'Generating...' : 'Print Report' }}
+        </button>
+        <button class="btn btn-secondary" (click)="goBackToProducts()">
+          <i class="fas fa-arrow-left me-1"></i>Back to Products
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-container text-center py-5">
+        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p class="text-muted">Loading analytics data...</p>
+      </div>
+
+      <!-- PDF Generation Progress -->
+      <div *ngIf="isGeneratingPDF" class="alert alert-info text-center">
+        <div class="d-flex align-items-center justify-content-center">
+          <div class="spinner-border spinner-border-sm me-3" role="status">
+            <span class="sr-only">Generating...</span>
+          </div>
+          <strong>{{ pdfProgress || 'Generating PDF Report...' }}</strong>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !isLoading" class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ error }}
+        <button class="btn btn-outline-danger btn-sm ms-3" (click)="refreshAnalytics()">
+          <i class="fas fa-redo me-1"></i>Retry
+        </button>
+      </div>
+
+      <!-- Analytics Content -->
+      <div *ngIf="!isLoading && !error">
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="analytics-card card-primary">
+              <div class="card-content">
+                <div class="card-icon">
+                  <i class="fas fa-box"></i>
+                </div>
+                <div class="card-details">
+                  <h3>{{ analytics.totalProducts }}</h3>
+                  <p>Total Products</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="analytics-card card-success">
+              <div class="card-content">
+                <div class="card-icon">
+                  <i class="fas fa-tags"></i>
+                </div>
+                <div class="card-details">
+                  <h3>{{ analytics.totalCategories }}</h3>
+                  <p>Categories</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="analytics-card card-info">
+              <div class="card-content">
+                <div class="card-icon">
+                  <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="card-details">
+                  <h3>{{ analytics.totalTypes }}</h3>
+                  <p>Product Types</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="analytics-card card-warning">
+              <div class="card-content">
+                <div class="card-icon">
+                  <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="card-details">
+                  <h3>R{{ analytics.averagePrice | number:'1.2-2' }}</h3>
+                  <p>Average Price</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price Insights -->
+        <div class="row mb-4">
+          <div class="col-md-6 mb-3">
+            <div class="card insight-card">
+              <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                  <i class="fas fa-arrow-up me-2"></i>Highest Priced Product
+                </h5>
+              </div>
+              <div class="card-body" *ngIf="analytics.highestPricedProduct">
+                <h6 class="product-name">{{ analytics.highestPricedProduct.productName }}</h6>
+                <p class="product-price text-success">R{{ analytics.highestPricedProduct.price | number:'1.2-2' }}</p>
+                <p class="product-description text-muted">{{ analytics.highestPricedProduct.productDescription }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <div class="card insight-card">
+              <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                  <i class="fas fa-arrow-down me-2"></i>Lowest Priced Product
+                </h5>
+              </div>
+              <div class="card-body" *ngIf="analytics.lowestPricedProduct">
+                <h6 class="product-name">{{ analytics.lowestPricedProduct.productName }}</h6>
+                <p class="product-price text-info">R{{ analytics.lowestPricedProduct.price | number:'1.2-2' }}</p>
+                <p class="product-description text-muted">{{ analytics.lowestPricedProduct.productDescription }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Analytics Section -->
+        <div class="row mb-4">
+          <div class="col-lg-4 mb-4">
+            <div class="card chart-card">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-chart-pie me-2"></i>Category Distribution
+                </h5>
+              </div>
+              <div class="card-body">
+                <canvas #categoryChart width="400" height="300"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-4 mb-4">
+            <div class="card chart-card">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-chart-bar me-2"></i>Products by Type
+                </h5>
+              </div>
+              <div class="card-body">
+                <canvas #typeChart width="400" height="300"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-4 mb-4">
+            <div class="card chart-card">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-chart-line me-2"></i>Price Range Distribution
+                </h5>
+              </div>
+              <div class="card-body">
+                <canvas #priceChart width="400" height="300"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Tables -->
+        <div class="row">
+          <div class="col-lg-6 mb-4">
+            <div class="card table-card">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-list me-2"></i>Category Breakdown
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Category</th>
+                        <th class="text-end">Products</th>
+                        <th class="text-end">Percentage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of analytics.productsByCategory | keyvalue">
+                        <td>{{ item.key }}</td>
+                        <td class="text-end">{{ item.value }}</td>
+                        <td class="text-end">{{ (item.value / analytics.totalProducts * 100) | number:'1.1-1' }}%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6 mb-4">
+            <div class="card table-card">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-chart-area me-2"></i>Price Range Analysis
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Price Range</th>
+                        <th class="text-end">Products</th>
+                        <th class="text-end">Percentage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of analytics.priceRanges | keyvalue">
+                        <td>R{{ item.key }}</td>
+                        <td class="text-end">{{ item.value }}</td>
+                        <td class="text-end">{{ (item.value / analytics.totalProducts * 100) | number:'1.1-1' }}%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PDF Progress Indicator -->
+      <div *ngIf="isGeneratingPDF" class="pdf-progress" style="margin-top: 15px; padding: 15px; background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; color: #0369a1;">
+        <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>
+        {{ pdfProgress }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Modal -->
+<app-notification-modal></app-notification-modal>

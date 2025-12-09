@@ -1,0 +1,8 @@
+export interface CreateOrderRequest {
+  userId: number;
+  cartId: number;
+  orderAddressId: number;
+  orderStatusId: number;
+  paymentStatusId: number;
+  deliveryAmountId: number;
+}

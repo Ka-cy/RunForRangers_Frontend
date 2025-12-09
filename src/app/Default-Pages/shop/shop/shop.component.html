@@ -1,0 +1,288 @@
+<header>
+<app-nav-bar-default></app-nav-bar-default>
+
+    
+     
+    
+ 
+</header>
+
+<main class="shop-container">
+  <section class="shop-header">
+    <h1 class="shop-title">All Products</h1>
+    <div class="search-container">
+      <div class="search-bar">
+        <input type="text" placeholder="Search products..." [(ngModel)]="searchQuery" (input)="onSearch()" />
+      </div>
+    </div>
+  </section>
+
+  <section class="filters-header">
+    <div class="filters-toggle" (click)="toggleFilters()">
+      <span class="filter-icon">⚙</span>
+      Filters
+    </div>
+    <span class="product-count">{{ filteredProducts.length }} products</span>
+    <div class="sort-container">
+      <label class="sort-label">Sort By:</label>
+      <select class="sort-select" [(ngModel)]="sortOption" (change)="onSortChange()">
+        <option value="featured">Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="name-asc">Name: A-Z</option>
+        <option value="name-desc">Name: Z-A</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="filters-panel" [class.hidden]="!showFilters" [class.visible]="showFilters">
+    <div class="filters-content">
+      <div class="filter-group">
+        <h3>Type</h3>
+        <div class="filter-options">
+          <div class="filter-option" [class.active]="selectedType === 'All'" (click)="onTypeFilter('All')">
+            <span class="filter-checkbox"></span>
+            All Products
+            <span class="filter-count">({{ products.length }})</span>
+          </div>
+          <div class="filter-option" *ngFor="let type of productTypes" [class.active]="selectedType === type.typeName" (click)="onTypeFilter(type.typeName)">
+            <span class="filter-checkbox"></span>
+            {{ type.typeName }}
+            <span class="filter-count">({{ getTypeCount(type.typeName) }})</span>
+          </div>
+        </div>
+      </div>
+      <div class="filter-group">
+        <h3>Price Range</h3>
+        <div class="filter-options">
+          <div class="filter-option" [class.active]="selectedPrice === 'All'" (click)="onPriceFilter('All')">
+            <span class="filter-checkbox"></span>
+            All Prices
+            <span class="filter-count">({{ products.length }})</span>
+          </div>
+          <div class="filter-option" [class.active]="selectedPrice === 'Low'" (click)="onPriceFilter('Low')">
+            <span class="filter-checkbox"></span>
+            Under R50
+            <span class="filter-count">({{ getPriceCount('Low') }})</span>
+          </div>
+          <div class="filter-option" [class.active]="selectedPrice === 'Medium'" (click)="onPriceFilter('Medium')">
+            <span class="filter-checkbox"></span>
+            R50 - R200
+            <span class="filter-count">({{ getPriceCount('Medium') }})</span>
+          </div>
+          <div class="filter-option" [class.active]="selectedPrice === 'High'" (click)="onPriceFilter('High')">
+            <span class="filter-checkbox"></span>
+            Over R200
+            <span class="filter-count">({{ getPriceCount('High') }})</span>
+          </div>
+        </div>
+      </div>
+      <div class="filter-group">
+        <h3>Featured</h3>
+        <div class="filter-options">
+          <div class="filter-option" [class.active]="selectedFeatured === 'bestsellers'" (click)="onFeaturedFilter('bestsellers')">
+            <span class="filter-checkbox"></span>
+            Best Sellers
+            <span class="filter-count">({{ getBestSellersCount() }})</span>
+          </div>
+          <div class="filter-option" [class.active]="selectedFeatured === 'new'" (click)="onFeaturedFilter('new')">
+            <span class="filter-checkbox"></span>
+            New Arrivals
+            <span class="filter-count">({{ getNewArrivalsCount() }})</span>
+          </div>
+        </div>
+      </div>
+      <div class="filter-group">
+        <button class="btn btn-outline" (click)="clearFilters()">Clear All Filters</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="product-grid" *ngIf="filteredProducts.length > 0; else emptyState">
+    <div class="product-card" *ngFor="let product of filteredProducts">
+      <div class="product-image-container">
+        <app-dynamic-image 
+          [src]="product.productImage"
+          [alt]="product.productName"
+          [productType]="getTypeName(product.productTypeId)"
+          [productCategory]="getCategoryNameForProduct(product)"
+          size="medium"
+          [showLoader]="true"
+          class="product-card-image">
+        </app-dynamic-image>
+        <div class="product-badges">
+          <span class="product-badge badge-popular" *ngIf="products.indexOf(product) < 5">Most Popular</span>
+          <span class="product-badge badge-staff-pick" *ngIf="products.indexOf(product) % 3 === 0">Staff Pick</span>
+        </div>
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">{{ product.productName }}</h3>
+        <p class="product-type">{{ getTypeName(product.productTypeId) }}</p>
+        <p class="product-description">Premium quality</p>
+        <p class="product-price">R{{ product.price | number: '1.2-2' }}</p>
+        <div class="product-rating">★</div>
+        
+        <!-- Color Selection -->
+        <div class="variant-selection" *ngIf="hasColors(product.productId)">
+          <label class="variant-label">Color:</label>
+          <div class="color-options">
+            <button 
+              *ngFor="let color of getAvailableColors(product.productId)"
+              class="color-option"
+              [class.selected]="getSelectedColor(product.productId)?.productColorId === color.productColorId"
+              (click)="selectColor(product.productId, color)"
+              [style.background-color]="color.hexCode"
+              [title]="color.colorName">
+              <span class="color-checkmark" *ngIf="getSelectedColor(product.productId)?.productColorId === color.productColorId">✓</span>
+            </button>
+          </div>
+          <span class="selected-variant-name" *ngIf="getSelectedColor(product.productId)">
+            {{ getSelectedColor(product.productId)?.colorName }}
+          </span>
+        </div>
+
+        <!-- Size Selection -->
+        <div class="variant-selection" *ngIf="hasSizes(product.productId)">
+          <label class="variant-label">Size:</label>
+          <div class="size-options">
+            <button 
+              *ngFor="let size of getAvailableSizes(product.productId)"
+              class="size-option"
+              [class.selected]="getSelectedSize(product.productId)?.productSizeId === size.productSizeId"
+              (click)="selectSize(product.productId, size)">
+              {{ size.sizeName }}
+            </button>
+          </div>
+        </div>
+        
+        <div class="product-actions">
+          <button 
+            class="add-to-cart" 
+            [disabled]="!canAddToCart(product.productId)"
+            [class.disabled]="!canAddToCart(product.productId)"
+            (click)="addToCart(product)">
+            Add to Cart
+          </button>
+          <button class="quick-view" (click)="openQuickView(product)">Quick View</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <h3>No products found</h3>
+      <p>Try adjusting your filters or search terms to find what you're looking for.</p>
+      <button class="btn btn-outline" (click)="clearFilters()">Clear All Filters</button>
+    </div>
+  </ng-template>
+
+  <div class="modal" *ngIf="showQuickView" (click)="closeQuickView()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <span class="close" (click)="closeQuickView()">×</span>
+      <app-dynamic-image 
+        [src]="selectedProduct?.productImage"
+        [alt]="selectedProduct?.productName || 'Product'"
+        [productType]="getTypeName(selectedProduct?.productTypeId || 0)"
+        [productCategory]="getCategoryNameForProduct(selectedProduct!)"
+        size="large"
+        [showLoader]="true"
+        class="quick-view-image">
+      </app-dynamic-image>
+      <div class="modal-product-info">
+        <h2>{{ selectedProduct?.productName }}</h2>
+        <p class="modal-product-type">{{ getTypeName(selectedProduct?.productTypeId || '') }}</p>
+        <p class="modal-product-description">Premium quality product with excellent features and superior craftsmanship.</p>
+        <p class="modal-product-price">R{{ selectedProduct?.price | number: '1.2-2' }}</p>
+        <div class="product-rating">★★★★★</div>
+
+        <!-- Color Selection in Quick View -->
+        <div class="modal-variant-selection" *ngIf="quickViewHasColors()">
+          <label class="variant-label">Color:</label>
+          <div class="color-options">
+            <button 
+              *ngFor="let color of getQuickViewAvailableColors()"
+              class="color-option"
+              [class.selected]="quickViewSelectedColor?.productColorId === color.productColorId"
+              (click)="selectQuickViewColor(color)"
+              [style.background-color]="color.hexCode"
+              [title]="color.colorName">
+              <span class="color-checkmark" *ngIf="quickViewSelectedColor?.productColorId === color.productColorId">✓</span>
+            </button>
+          </div>
+          <span class="selected-variant-name" *ngIf="quickViewSelectedColor">
+            {{ quickViewSelectedColor.colorName }}
+          </span>
+        </div>
+
+        <!-- Size Selection in Quick View -->
+        <div class="modal-variant-selection" *ngIf="quickViewHasSizes()">
+          <label class="variant-label">Size:</label>
+          <div class="size-options">
+            <button 
+              *ngFor="let size of getQuickViewAvailableSizes()"
+              class="size-option"
+              [class.selected]="quickViewSelectedSize?.productSizeId === size.productSizeId"
+              (click)="selectQuickViewSize(size)">
+              {{ size.sizeName }}
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button 
+            class="add-to-cart modal-add-to-cart" 
+            [disabled]="!canAddToCartQuickView()"
+            [class.disabled]="!canAddToCartQuickView()"
+            (click)="addToCartFromQuickView()">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="shop-footer">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h3>About RR Store</h3>
+      <p>We offer high-quality products for all your needs. Our commitment to excellence ensures you get the best value for your money.</p>
+      <div class="social-links">
+        <a href="#" class="social-icon">📘</a>
+        <a href="#" class="social-icon">🐦</a>
+        <a href="#" class="social-icon">📷</a>
+        <a href="#" class="social-icon">💼</a>
+      </div>
+    </div>
+    <div class="footer-section">
+      <h3>Quick Links</h3>
+      <ul>
+        <li><a (click)="navigateToAbout()">About Us</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Shipping & Returns</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Customer Service</h3>
+      <ul>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Track Your Order</a></li>
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">Care Instructions</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Contact Info</h3>
+      <p>Email: email</p>
+      <p>Phone: 1234567890</p>
+      <p>Address: 123 Main Street<br />Johannesburg, South Africa</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 RR Store. All rights reserved. | Designed with care in South Africa</p>
+  </div>
+</footer>

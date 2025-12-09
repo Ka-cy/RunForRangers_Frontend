@@ -1,0 +1,304 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: calc(100% - 300px); /* Account for sidebar width plus some spacing */
+    margin-left: 270px; /* Increased offset for sidebar width */
+    padding: 30px 40px; /* Increased padding for better spacing */
+    box-sizing: border-box;
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Header Styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px; /* Increased margin for better spacing */
+    padding-top: 10px; /* Added top padding */
+}
+
+.header h2 {
+    color: #333;
+    font-size: 20px; /* Reduced font size */
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 12px;
+    width: 200px;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #ff9800;
+    box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px; /* Reduced gap */
+}
+
+/* Button Styles */
+.button {
+    background-color: #ff9800;
+    color: #ffffff;
+    border: none;
+    padding: 6px 12px; /* Reduced padding */
+    border-radius: 15px; /* Slightly reduced radius */
+    font-size: 12px; /* Reduced font size */
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #e68a00;
+}
+
+.button:active {
+    background-color: #d98100;
+}
+
+.button-large {
+    padding: 8px 16px; /* Reduced padding */
+    font-size: 14px; /* Reduced font size */
+}
+
+.btn-calendar {
+    background-color: #4caf50;
+    color: white;
+}
+
+.btn-calendar:hover {
+    background-color: #45a049;
+}
+
+/* Event Card Styles */
+.events-container {
+    display: grid;
+    gap: 25px; /* Added gap between event cards */
+    padding: 10px 0; /* Added vertical padding */
+    margin-top: 20px; /* Added top margin */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Reduced card width */
+    gap: 15px; /* Reduced gap */
+}
+
+.event-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px; /* Reduced radius */
+    padding: 10px; /* Reduced padding */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Reduced shadow */
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px; /* Reduced margin */
+}
+
+.event-header h3 {
+    margin: 0;
+    font-size: 16px; /* Reduced font size */
+    color: #333;
+}
+
+.event-status {
+    background-color: #ff9800;
+    color: #fff;
+    padding: 3px 8px; /* Reduced padding */
+    border-radius: 10px; /* Reduced radius */
+    font-size: 10px; /* Reduced font size */
+}
+
+.event-details p {
+    margin: 4px 0; /* Reduced margin */
+    color: #666;
+    font-size: 12px; /* Reduced font size */
+}
+
+.jobs-section h4 {
+    font-size: 14px; /* Reduced font size */
+    margin-top: 8px; /* Reduced margin */
+    color: #333;
+}
+
+.job-card {
+    background-color: #f5f5f5;
+    padding: 8px; /* Reduced padding */
+    border-radius: 6px; /* Reduced radius */
+    margin-top: 8px; /* Reduced margin */
+}
+
+.employees-section {
+    margin-top: 8px; /* Reduced margin */
+}
+
+.employees-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0; /* Reduced margin */
+}
+
+.employees-section li {
+    color: #444;
+    font-size: 12px; /* Reduced font size */
+}
+
+.text-muted {
+    color: #888;
+    font-style: italic;
+    font-size: 11px; /* Reduced font size */
+}
+
+/* Event Actions Styles */
+.event-actions {
+    margin-top: 10px; /* Reduced margin */
+    display: flex;
+    gap: 8px; /* Reduced gap */
+    flex-wrap: wrap;
+}
+
+.event-actions .btn {
+    padding: 5px 10px; /* Reduced padding */
+    border-radius: 15px; /* Reduced radius */
+    font-size: 11px; /* Reduced font size */
+    cursor: pointer;
+}
+
+.btn-warning {
+    background-color: #ff9800;
+    color: #fff;
+    border: none;
+}
+
+.btn-warning:hover {
+    background-color: #e68a00;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: #fff;
+    border: none;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Textbox (Search Input) Styles - Assuming in nav-bar-admin */
+.textbox {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 15px; /* Reduced radius */
+    padding: 6px 10px; /* Reduced padding */
+    font-size: 12px; /* Reduced font size */
+    width: 180px; /* Reduced width */
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.textbox:focus {
+    border-color: #ff9800;
+    box-shadow: 0 0 4px rgba(255, 152, 0, 0.3); /* Reduced shadow */
+}
+
+.textbox::placeholder {
+    color: #888;
+    font-style: italic;
+    font-size: 12px; /* Reduced font size */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        margin-left: 0; /* Remove margin on small screens */
+        padding: 5px;
+    }
+    .header {
+        flex-direction: column;
+        gap: 5px;
+    }
+    .header div {
+        width: 100%;
+    }
+    .button, .btn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    .events-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Navbar Offset Adjustment */
+@media (min-width: 769px) {
+    .container {
+        margin-left: 250px; /* Adjust based on your navbar width */
+    }
+}
+
+/* Loading Spinner Styles */
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

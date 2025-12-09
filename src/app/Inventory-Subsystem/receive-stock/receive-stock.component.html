@@ -1,0 +1,76 @@
+<!-- Sidebar Navigation -->
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<!-- Main Content -->
+<div class="main-content">
+  <header class="header">
+    <h2 class="header-title">Inventory Management</h2>
+    <div class="user-info">
+      <div class="user-avatar">HM</div>
+      <div class="user-details">
+        <h4>Harry Manager</h4>
+        <p>Admin</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Receive Stock Form Section -->
+  <div class="receive-stock-wrapper">
+    <div class="receive-stock-card">
+      <h2 class="form-title">📥 Receive Stock</h2>
+      <form #receiveForm="ngForm" (ngSubmit)="onSubmit(receiveForm)" class="receive-stock-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="productId">Product<span>*</span></label>
+            <select [(ngModel)]="productId" id="productId" name="productId" class="form-control" required (ngModelChange)="updateAvailableImages()">
+              <option value="0">Select a product</option>
+              <option *ngFor="let product of productList" [value]="product.productId">{{ product.productName }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="productColorId">Colour<span>*</span></label>
+            <select [(ngModel)]="productColorId" id="productColorId" name="productColorId" class="form-control" required>
+              <option value="0">Select a colour</option>
+              <option *ngFor="let colour of colourList" [value]="colour.productColorId">{{ colour.colorName }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="productSizeId">Size<span>*</span></label>
+            <select [(ngModel)]="productSizeId" id="productSizeId" name="productSizeId" class="form-control" required>
+              <option value="0">Select a size</option>
+              <option *ngFor="let size of sizeList" [value]="size.productSizeId">{{ size.sizeName }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="quantity">Quantity Received<span>*</span></label>
+            <input type="number" [(ngModel)]="quantity" id="quantity" name="quantity" class="form-control" required min="1" />
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" [(ngModel)]="description" id="description" name="description" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="imageUrl">Select Image</label>
+            <select [(ngModel)]="imageUrl" id="imageUrl" name="imageUrl" class="form-control" (ngModelChange)="updateImageUrl()">
+              <option value="">Select an image</option>
+              <option *ngFor="let image of availableImages" [value]="image">{{ image }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="router.navigate(['/inventory'])">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="!receiveForm.valid || isLoading">Receive Stock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<app-notification-modal></app-notification-modal>

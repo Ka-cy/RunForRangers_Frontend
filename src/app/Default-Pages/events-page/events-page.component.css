@@ -1,0 +1,118 @@
+/* Register for an Event button */
+.button.btn-success {
+  background: linear-gradient(90deg, #4caf50 60%, #388e3c 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(67, 74, 66, 0.08);
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: background 0.2s, transform 0.2s;
+}
+.button.btn-success:hover {
+  background: linear-gradient(90deg, #388e3c 60%, #4caf50 100%);
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Register button in dropdown */
+.button.btn-primary {
+  background: linear-gradient(90deg, #1976d2 60%, #1565c0 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 1.1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(67, 74, 66, 0.08);
+  cursor: pointer;
+  margin-left: 0.7rem;
+  transition: background 0.2s, transform 0.2s;
+}
+.button.btn-primary:disabled {
+  background: #b0bec5;
+  cursor: not-allowed;
+}
+.button.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(90deg, #1565c0 60%, #1976d2 100%);
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Dropdown styling */
+.event-dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-bottom: 1.2rem;
+}
+.event-dropdown label {
+  font-weight: 500;
+  color: #434a42;
+  margin-right: 0.5rem;
+}
+.event-dropdown select {
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  border: 1px solid #b0bec5;
+  font-size: 1rem;
+  background: #f8f6f3;
+  color: #434a42;
+  font-weight: 500;
+  outline: none;
+  transition: border 0.2s;
+}
+.event-dropdown select:focus {
+  border-color: #4caf50;
+}
+.events-section {
+  padding: 4rem 2rem;
+  background-color: #f8f6f3;
+  min-height: calc(100vh - 64px); /* Adjust based on your navbar height */
+}
+
+.events-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #434a42;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+  color: #918b76;
+  font-size: 1.1rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+}
+
+.calendar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(67, 74, 66, 0.1);
+  padding: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .events-section {
+    padding: 2rem 1rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .calendar-container {
+    padding: 1rem;
+  }
+}

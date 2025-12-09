@@ -1,0 +1,378 @@
+<!-- Navigation -->
+<app-nav-bar-default></app-nav-bar-default>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-background">
+    <img class="hero-img" src="assets/Images/RFRHome.jpg" alt="Run For Rangers event image"/>
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1 class="hero-title">
+        <span class="highlight-yellow">Run</span> for <span class="highlight-green">Rangers</span>
+      </h1>
+      <p class="hero-subtitle">Making a difference one step at a time</p>
+      <p class="hero-description">
+        Join our mission to support wildlife conservation through community action, sustainable shopping, and meaningful donations.
+      </p>
+      <div class="hero-buttons">
+        <button class="btn btn-primary" (click)="navigateToRegister()">
+          <span>🚀</span> Get Started Today
+        </button>
+        <button class="btn btn-secondary" (click)="navigateToAbout()">
+          <span>🌍</span> Learn Our Mission
+        </button>
+        <button class="btn btn-success" (click)="navigateToShop()">
+          <span>🛒</span> Shop for a Cause
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scroll Indicator -->
+  <div class="scroll-indicator">
+    <div class="scroll-mouse">
+      <div class="scroll-wheel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🏃‍♂️</div>
+        <div class="stat-number">10,000+</div>
+        <div class="stat-label">Active Runners</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🌿</div>
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Trees Protected</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-number">R250K+</div>
+        <div class="stat-label">Funds Raised</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🦏</div>
+        <div class="stat-number">50+</div>
+        <div class="stat-label">Rangers Supported</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Video Section -->
+<section class="video-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">See Us in Action</h2>
+      <p class="section-subtitle">Watch how we're making a difference in wildlife conservation</p>
+    </div>
+    <div class="video-wrapper">
+      <div class="video-container">
+        <iframe
+          [src]="safeVideoUrl"
+          title="Run For Rangers Video"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Donation Section -->
+<section class="donation-section">
+  <div class="container">
+    <div class="donation-card">
+      <div class="donation-header">
+        <h2>Support Our Mission</h2>
+        <p>Every contribution helps protect wildlife and support our rangers</p>
+      </div>
+      
+      <div class="donation-form">
+        <div class="security-badge">
+          <span class="security-icon">🔐</span>
+          <span>Secure Payment</span>
+        </div>
+        
+        <div class="amount-section">
+          <label for="donation-amount">Donation Amount (ZAR)</label>
+          <div class="amount-input-wrapper">
+            <span class="currency">R</span>
+            <input 
+              type="number" 
+              id="donation-amount"
+              class="amount-input" 
+              [(ngModel)]="donation.amount" 
+              placeholder="0"
+              min="1"
+            >
+          </div>
+        </div>
+        
+        <div class="quick-amounts">
+          <button class="amount-btn" (click)="setDonationAmount(100)">R100</button>
+          <button class="amount-btn" (click)="setDonationAmount(200)">R200</button>
+          <button class="amount-btn" (click)="setDonationAmount(500)">R500</button>
+          <button class="amount-btn" (click)="setDonationAmount(1000)">R1000</button>
+        </div>
+        
+        <button class="donate-btn" (click)="submitDonation()" [disabled]="!donation.amount || donation.amount <= 0">
+          <span>❤️</span> Donate Now
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Testimonials Section -->
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">What Our Community Says</h2>
+      <p class="section-subtitle">Hear from our brave participants and supporters</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-quote">
+          This challenge pushed me beyond my limits while supporting an incredible cause. The rangers' dedication is truly inspiring.
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">
+            <span>JD</span>
+          </div>
+          <div class="author-info">
+            <div class="author-name">John Doe</div>
+            <div class="author-title">Marathon Runner</div>
+          </div>
+        </div>
+        <div class="testimonial-rating">
+          <span>⭐⭐⭐⭐⭐</span>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-quote">
+          Run for Rangers combines fitness with purpose. Every step I take helps protect our precious wildlife.
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">
+            <span>SM</span>
+          </div>
+          <div class="author-info">
+            <div class="author-name">Sarah Mitchell</div>
+            <div class="author-title">Conservation Volunteer</div>
+          </div>
+        </div>
+        <div class="testimonial-rating">
+          <span>⭐⭐⭐⭐⭐</span>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-quote">
+          The community spirit is amazing. Together we're making a real difference for future generations.
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">
+            <span>MJ</span>
+          </div>
+          <div class="author-info">
+            <div class="author-name">Mike Johnson</div>
+            <div class="author-title">Environmental Activist</div>
+          </div>
+        </div>
+        <div class="testimonial-rating">
+          <span>⭐⭐⭐⭐⭐</span>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-quote">
+          A better environment for all - that's what drives me to participate in every Run for Rangers event.
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">
+            <span>LB</span>
+          </div>
+          <div class="author-info">
+            <div class="author-name">Lisa Brown</div>
+            <div class="author-title">Nature Photographer</div>
+          </div>
+        </div>
+        <div class="testimonial-rating">
+          <span>⭐⭐⭐⭐⭐</span>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-quote">
+          The most fulfilling race experience I've ever had. Knowing I'm helping rangers protect wildlife makes every kilometer worthwhile.
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">
+            <span>RT</span>
+          </div>
+          <div class="author-info">
+            <div class="author-name">Robert Taylor</div>
+            <div class="author-title">Ultra Runner</div>
+          </div>
+        </div>
+        <div class="testimonial-rating">
+          <span>⭐⭐⭐⭐⭐</span>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-quote">
+          I absolutely enjoyed every moment! The organization is top-notch and the cause is close to my heart.
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">
+            <span>AC</span>
+          </div>
+          <div class="author-info">
+            <div class="author-name">Anna Chen</div>
+            <div class="author-title">Wildlife Enthusiast</div>
+          </div>
+        </div>
+        <div class="testimonial-rating">
+          <span>⭐⭐⭐⭐⭐</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call-to-Action Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-content">
+      <h2>Ready to Make a Difference?</h2>
+      <p>Join thousands of runners who are already supporting wildlife conservation</p>
+      <div class="cta-buttons">
+        <button class="btn btn-primary" (click)="navigateToRegister()">
+          <span>🏃‍♂️</span> Join the Race
+        </button>
+        <button class="btn btn-outline" (click)="navigateToShop()">
+          <span>🛒</span> Shop Merchandise
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <!-- Company Info -->
+      <div class="footer-section">
+        <div class="footer-logo">
+          <h3><span class="highlight-yellow">Run</span> for <span class="highlight-green">Rangers</span></h3>
+        </div>
+        <p class="footer-description">
+          Dedicated to wildlife conservation through community engagement, sustainable practices, and meaningful action. 
+          Together, we're protecting our planet's precious ecosystems one step at a time.
+        </p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Twitter">
+            <span>𝕏</span>
+          </a>
+          <a href="#" class="social-link" aria-label="Instagram">
+            <span>📷</span>
+          </a>
+          <a href="#" class="social-link" aria-label="YouTube">
+            <span>▶️</span>
+          </a>
+          <a href="#" class="social-link" aria-label="LinkedIn">
+            <span>in</span>
+          </a>
+          <a href="#" class="social-link" aria-label="Facebook">
+            <span>📘</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <nav class="footer-nav">
+          <a href="#" (click)="navigateToAbout()">About Us</a>
+          <a href="#" (click)="navigateToShop()">Shop</a>
+          <a href="#" (click)="navigateToDashboard()">Dashboard</a>
+          <a href="#" (click)="navigateToCart()">Cart</a>
+        </nav>
+      </div>
+
+      <!-- Get Involved -->
+      <div class="footer-section">
+        <h4>Get Involved</h4>
+        <nav class="footer-nav">
+          <a href="#" (click)="navigateToRegister()">Register for Events</a>
+          <a href="#donation" onclick="document.querySelector('.donation-section').scrollIntoView()">Make a Donation</a>
+          <a href="#" (click)="navigateToShop()">Buy Merchandise</a>
+          <a href="#volunteer">Volunteer Opportunities</a>
+        </nav>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="footer-section">
+        <h4>Contact Us</h4>
+        <div class="contact-info">
+          <div class="contact-item">
+            <span class="contact-icon">�</span>
+            <span>123 Conservation Street<br>Wildlife District, South Africa</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">📞</span>
+            <span>+27 (0) 123-456-7890</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">✉️</span>
+            <span>info&#64;runforrangers.org</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">🕒</span>
+            <span>Mon-Fri: 8AM-6PM<br>Weekends: 9AM-4PM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Bottom -->
+    <div class="footer-bottom">
+      <div class="footer-bottom-content">
+        <p>&copy; 2024 Run for Rangers. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#privacy">Privacy Policy</a>
+          <a href="#terms">Terms of Service</a>
+          <a href="#cookies">Cookie Policy</a>
+        </div>
+        <div class="language-selector">
+          <span>🌐</span>
+          <select>
+            <option value="en">English</option>
+            <option value="af">Afrikaans</option>
+            <option value="zu">Zulu</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

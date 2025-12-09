@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Events - Run For Rangers</title>
+</head>
+<body>
+  <!-- Header/Navigation -->
+  <app-nav-bar-default></app-nav-bar-default>
+
+  <!-- Events Calendar Section -->
+  <section class="events-section">
+    <div class="events-header">
+      <h1 class="section-title">Upcoming Events</h1>
+      <p class="section-subtitle">Stay updated with all our scheduled events</p>
+      <button *ngIf="isRunner" class="button btn-success" (click)="showDropdown = !showDropdown">Register for an Event</button>
+      <div *ngIf="showDropdown && publicEvents.length > 0" class="event-dropdown">
+        <label for="eventSelect">Select an event:</label>
+        <select id="eventSelect" [(ngModel)]="selectedEventId">
+          <option *ngFor="let event of publicEvents" [value]="event.id" [disabled]="registeredEventIds.includes(event.id)">
+            {{ event.eventName }}<span *ngIf="registeredEventIds.includes(event.id)"> (registered)</span>
+          </option>
+        </select>
+        <button class="button btn-primary" (click)="onRegisterEvent()" [disabled]="!selectedEventId">Register</button>
+      </div>
+    </div>
+    <div class="calendar-container">
+      <app-user-event-calendar></app-user-event-calendar>
+    </div>
+  </section>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<div class="main-content">
+  <div class="header">
+    <div class="user-info">
+      <div class="user-avatar">HB</div>
+      <div class="user-details">
+        <h4>Harry Bailey</h4>
+        <p>Admin</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Donation Report</h1>
+        <br>
+        <br/>
+        <p class="page-description">This report provides an overview of donations, including both organisation and runner contributions.</p>
+      </div>
+      <button class="download-btn" (click)="generatePdf()">Download PDF</button>
+    </div>
+
+    <div class="summary-cards">
+      <div class="summary-card total-donations">
+        <h3>Total Donations</h3>
+        <div class="value">{{ donations.length }}</div>
+      </div>
+      <div class="summary-card total-amount">
+        <h3>Total Amount</h3>
+        <div class="value">R{{ getTotalAmount().toFixed(2) }}</div>
+      </div>
+      <div class="summary-card average-donation">
+        <h3>Average Donation</h3>
+        <div class="value">R{{ getAverageDonation().toFixed(2) }}</div>
+      </div>
+    </div>
+
+    <div class="date-picker-container">
+      <mat-form-field appearance="fill">
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" (dateChange)="fetchDonations()">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" (dateChange)="fetchDonations()">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Donation Type</mat-label>
+        <mat-select [(ngModel)]="filterType" (selectionChange)="onFilterChange()">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="Organisation">Organisation</mat-option>
+          <mat-option value="Runner">Runner</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="fill" *ngIf="filterType === 'Runner' || filterType === 'All'">
+        <mat-label>Select Runner</mat-label>
+        <mat-select [(ngModel)]="selectedRunnerId" (selectionChange)="onRunnerSelect()">
+          <mat-option [value]="null">All Runners</mat-option>
+          <mat-option *ngFor="let runner of runners" [value]="runner.userId">
+            {{ runner.firstName }} {{ runner.surname }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="report-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Donation ID</th>
+            <th>Logged By</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Donor Name</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="donations.length === 0">
+            <td colspan="4">No donations found for the selected date range and type</td>
+          </tr>
+          <tr *ngFor="let donation of donations">
+            <td class="donation-id">#{{ donation.donationID }}</td>
+              <td>{{ donation.loggedByAdminId }}</td>
+            <td class="date-cell">{{ donation.date | date:'shortDate' }}</td>
+            <td>{{ donation.type }}</td>
+            <td>{{donation.donorName}}</td>
+            <td class="amount">R{{ donation.amount.toFixed(2) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chart-container">
+      <h2 class="chart-title">Donation Trends</h2>
+      <canvas baseChart [data]="chartConfig.data" [options]="chartConfig.options"></canvas>
+    </div>
+  </div>
+</div>

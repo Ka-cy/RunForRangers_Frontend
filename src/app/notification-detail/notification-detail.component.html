@@ -1,0 +1,8 @@
+<div class="notification-detail">
+  <h2>{{ data.title }}</h2>
+  <p>{{ data.message }}</p>
+  <p><strong>Type:</strong> {{ data.notificationType.notificationTypeName }}</p>
+  <p><strong>Created:</strong> {{ data.createdAt | date:'medium' }}</p>
+  <p *ngIf="data.userName"><strong>User:</strong> {{ data.userName }}</p>
+  <button mat-button (click)="onClose()">Close</button>
+</div>

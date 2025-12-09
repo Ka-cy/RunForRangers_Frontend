@@ -1,0 +1,242 @@
+<!-- product-dashboard.component.html -->
+ <!--Template for the nav bars-->
+<div class="dashboard-container">
+  
+  <!-- follow dashboard-admin layout: nav, then dashboard-container with header and content -->
+  <app-nav-bar-admin></app-nav-bar-admin>
+
+  <!-- Header should be a direct child of dashboard-container (not nested inside main-content) -->
+  <header class="header">
+    <div class="header-left">
+      <div class="page-title">
+        <h1>
+          <i class="fas fa-box-open"></i>
+          Products
+        </h1>
+        <p class="page-subtitle">Manage and view all products</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Reuse existing product search input -->
+      <div class="search-container">
+        <input 
+          type="text" 
+          placeholder="Search products..." 
+          class="search-input"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchInput($event)"
+        />
+        <button class="search-button" (click)="onSearchClick()">
+          <svg class="search-icon" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- User profile (reuse existing menu behavior) -->
+      <div class="user-info" (click)="toggleProfileMenu()">
+        <div class="user-details">
+          <h4>{{ getCurrentUserName() }}</h4>
+          <span class="role">{{ getCurrentUserRole() }}</span>
+        </div>
+        <div class="user-avatar">{{ getCurrentUserInitials() }}</div>
+        <i class="fas fa-chevron-down dropdown-arrow" [class.rotated]="showProfileMenu"></i>
+
+        <div class="profile-menu" *ngIf="showProfileMenu">
+          <div class="menu-item">My Profile</div>
+          <div class="menu-item">Settings</div>
+          <div class="menu-item" (click)="logout()">Logout</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-content">
+
+    
+    <div class="content-header">
+      <h2>Products
+        <app-help-button category="products"></app-help-button>
+      </h2>
+      <div class="action-buttons">
+        <button class="add-product-btn" (click)="addProduct()">
+          <span>+</span> Add Product
+        </button>
+        <button class="analytics-btn" (click)="viewAnalytics()">
+          <span>📊</span> Analytics
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="filter-container">
+      <div class="filter-section">
+        <div class="filter-group">
+          <label>Category:</label>
+          <select 
+            [(ngModel)]="selectedCategory" 
+            (ngModelChange)="onCategoryFilter($event)"
+            class="filter-select"
+          >
+            <option value="">All Categories</option>
+            <option 
+              *ngFor="let category of categories" 
+              [value]="category.productCategoryId"
+            >
+              {{ category.categoryName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Type:</label>
+          <select 
+            [(ngModel)]="selectedType" 
+            (ngModelChange)="onTypeFilter($event)"
+            class="filter-select"
+          >
+            <option value="">All Types</option>
+            <option 
+              *ngFor="let type of types" 
+              [value]="type.productTypeId"
+            >
+              {{ type.typeName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Price Range:</label>
+          <div class="price-range">
+            <input 
+              type="number" 
+              placeholder="Min" 
+              [(ngModel)]="priceRangeMin"
+              (input)="onPriceFilter()"
+              class="price-input"
+            >
+            <span>-</span>
+            <input 
+              type="number" 
+              placeholder="Max" 
+              [(ngModel)]="priceRangeMax"
+              (input)="onPriceFilter()"
+              class="price-input"
+            >
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Sort by:</label>
+          <select 
+            [(ngModel)]="sortBy" 
+            (change)="onSort(sortBy)"
+            class="filter-select"
+          >
+            <option value="name">Name</option>
+            <option value="price">Price</option>
+            <option value="id">ID</option>
+          </select>
+          <button 
+            class="sort-order-btn" 
+            (click)="onSort(sortBy)"
+            [class.desc]="sortOrder === 'desc'"
+          >
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </button>
+        </div>
+
+        <div class="filter-group">
+          <button class="clear-filters-btn" (click)="clearFilters()">
+            Clear Filters
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Summary -->
+      <div class="results-summary">
+        <div>Showing {{ filteredProducts.length }} of {{ products.length }} products</div>
+        <div *ngIf="hasActiveFilters()" class="filter-status">{{ getFilterStatus() }}</div>
+      </div>
+    </div>
+
+    <!-- Show loading or no products message -->
+    <div class="no-products" *ngIf="!products.length && !error">
+        Loading products...
+    </div>
+
+    <!-- No filtered products message -->
+    <div class="no-products" *ngIf="filteredProducts.length === 0 && products.length > 0">
+        No products match your current filters.
+    </div>
+
+    <!-- Products table -->
+    <div class="products-table" *ngIf="filteredProducts.length > 0">
+      <div class="table-header">
+        <div class="header-item">Image</div>
+        <div class="header-item sortable" (click)="onSort('name')">
+          Product Name 
+          <span class="sort-indicator" *ngIf="sortBy === 'name'">
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </span>
+        </div>
+        <div class="header-item">Category</div>
+        <div class="header-item sortable" (click)="onSort('price')">
+          Price
+          <span class="sort-indicator" *ngIf="sortBy === 'price'">
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </span>
+        </div>
+        <div class="header-item">Available Colors</div>
+        <div class="header-item sortable" (click)="onSort('id')">
+          ID
+          <span class="sort-indicator" *ngIf="sortBy === 'id'">
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </span>
+        </div>
+        <div class="header-item">Action</div>
+      </div>
+
+      <div class="table-body">
+        <div class="table-row" *ngFor="let product of filteredProducts">
+          <div class="table-cell">
+            <app-dynamic-image 
+              [src]="product.productImage"
+              [alt]="product.productName"
+              [productType]="getTypeName(product.productTypeId)"
+                                [productCategory]="getCategoryNameForProduct(product)"
+              size="small"
+              [showLoader]="true"
+              class="product-image">
+            </app-dynamic-image>
+          </div>
+          <div class="table-cell">{{product.productName}}</div>
+          <div class="table-cell">{{getCategoryNameForProduct(product)}}</div>
+          <div class="table-cell price-cell">R{{product.price}}</div>
+          <div class="table-cell colors">
+            <ng-container *ngFor="let color of getAvailableColorsForProduct(product); let i = index">
+              <span 
+                class="color-dot" 
+                [style.background-color]="getColorStyle(color.colorName)"
+                [title]="color.colorName"
+                *ngIf="i < 5">
+              </span>
+            </ng-container>
+            <span *ngIf="getAvailableColorsForProduct(product).length > 5" class="more-colors">
+              +{{getAvailableColorsForProduct(product).length - 5}} more
+            </span>
+          </div>
+          <div class="table-cell">{{product.productId}}</div>
+          <div class="table-cell actions">
+            <button class="edit-btn" (click)="editProduct(product.productId)">Edit</button>
+            <button class="delete-btn" (click)="deleteProduct(product.productId)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Modal -->
+<app-notification-modal></app-notification-modal>

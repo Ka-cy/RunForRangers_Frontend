@@ -1,0 +1,139 @@
+<header>
+  <nav class="navbar">
+    <div class="logo">RR</div>
+    <ul class="nav-links">
+      <li><a (click)="navigateToAbout()">About</a></li>
+      <li><a href="#">Event</a></li>
+      <li><a href="#">Media</a></li>
+      <li><a (click)="navigateToShop()">Shop</a></li>
+      <li><a href="#">Runner Registration</a></li>
+    </ul>
+
+    <div class="auth-links">
+      <ng-container *ngIf="!isUserLoggedIn()">
+        <a (click)="navigateToSignIn()">Sign In</a>
+        <a (click)="navigateToRegister()">Register</a>
+      </ng-container>
+      <ng-container *ngIf="isUserLoggedIn()">
+        <div class="user-menu">
+          <span (click)="showDropdown = !showDropdown">{{ currentUser?.name || 'User Name' }}</span>
+          <div class="dropdown" *ngIf="showDropdown">
+            <a (click)="openEditProfile()">Edit Profile</a>
+            <a (click)="logout()">Logout</a>
+          </div>
+        </div>
+      </ng-container>
+      <a (click)="navigateToCart()">🛒 {{ cartItems.length }}</a>
+    </div>
+    <div class="hamburger" (click)="toggleMenu()">☰</div>
+  </nav>
+</header>
+
+<main>
+  <h1>Your Cart</h1>
+
+  <div *ngIf="showLoginPrompt" class="login-prompt">
+    <p>Please sign in to proceed to checkout.</p>
+    <button (click)="navigateToSignIn()">Sign In</button>
+    <button (click)="navigateToRegister()">Register</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading cart details...</p>
+  </div>
+
+  <div *ngIf="!isLoading && cartItems.length === 0 && !error" class="empty-cart">
+    <p>Your cart is empty</p>
+    <a (click)="navigateToShop()">Continue shopping.</a>
+  </div>
+
+  <div *ngIf="!isLoading && cartItems.length > 0" class="cart-items">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of cartItems">
+          <td>
+            <div class="product-info">
+             <app-dynamic-image
+                [src]="getCartItemProductImage(item)"
+                [alt]="getCartItemProductName(item)">
+            </app-dynamic-image>
+              <div>
+                <h3>{{ getCartItemProductName(item) }}</h3>
+                <p>{{ item.productDetails?.productDescription || 'Product Details' }}</p>
+                <p>{{ item.selectedColor }} | {{ item.selectedSize }}</p>
+              </div>
+            </div>
+          </td>
+          <td>R{{ item.price | number: '1.2-2' }}</td>
+          <td>
+            <input
+              type="number"
+              [(ngModel)]="item.quantity"
+              (change)="updateQuantity(item, item.quantity)"
+              min="1"
+            />
+          </td>
+          <td>R{{ (item.price * item.quantity) | number: '1.2-2' }}</td>
+          <td>
+            <button (click)="removeFromCart(item.cartItemId)">Remove</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button (click)="clearCart()" class="clear-cart">Clear Cart</button>
+  </div>
+
+  <div *ngIf="cartItems.length > 0" class="cart-summary">
+    <p>Subtotal: R{{ calculateSubtotal() | number: '1.2-2' }}</p>
+    <p>VAT (15%): R{{ calculateVat() | number: '1.2-2' }}</p>
+    <p><strong>Total: R{{ calculateTotal() | number: '1.2-2' }}</strong></p>
+    <button (click)="proceedToCheckout()" class="checkout-button">Proceed to Checkout</button>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-content">
+    <div class="footer-section">
+      <h3>About RR Store</h3>
+      <p>RR Store offers high-quality electronics and clothing for all your needs.</p>
+      <div class="social-icons">
+        <a href="#"><span>📘</span></a>
+        <a href="#"><span>🐦</span></a>
+        <a href="#"><span>📷</span></a>
+        <a href="#"><span>💼</span></a>
+      </div>
+    </div>
+
+    <div class="footer-section">
+      <h3>Quick Links</h3>
+      <ul>
+        <li><a (click)="navigateToAbout()">About</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Shipping & Returns</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h3>Contact Info</h3>
+      <p>Email: email</p>
+      <p>Phone: 1234567890</p>
+      <p>Address: 123 Main Street, Johannesburg, South Africa</p>
+    </div>
+  </div>
+
+  <p class="footer-bottom">© 2025 RR Store. All rights reserved. | Designed with care in South Africa</p>
+</footer>

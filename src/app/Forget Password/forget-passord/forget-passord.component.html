@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Forgot Password</title>
+  
+  <!-- Add Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<app-nav-bar-default></app-nav-bar-default>
+
+<!-- Loading Overlay -->
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner-container">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="loading-text">Processing...</p>
+  </div>
+</div>
+
+<!-- Main Forgot Password Section -->
+<main class="main-container" [class.blur-content]="loading">
+  <h1>{{ showCodeInput ? 'Enter Verification Code' : 'Forgot Password' }}</h1>
+  
+  <!-- Email input form -->
+  <div class="form-box" *ngIf="!showCodeInput">
+    <label for="email">Email</label>
+    <input [(ngModel)]="email" type="email" id="email" placeholder="Enter your email"
+           [ngClass]="{'input-error': emailError}">
+    <p class="error-text" *ngIf="emailError">Email is required</p>
+    <p class="error-text" *ngIf="submitError">{{ submitError }}</p>
+    
+    <button (click)="verifyEmail()" class="btn-signin" [disabled]="loading">
+      {{ loading ? 'Sending Code...' : 'Send Code' }}
+    </button>
+  </div>
+
+  <!-- Code input form -->
+  <div class="form-box code-form" *ngIf="showCodeInput">
+    <p class="subtitle">We've sent a 5-digit code to your email</p>
+    
+    <div class="code-input-group">
+      <input type="text" maxlength="1" class="code-input" name="code1" 
+             (input)="onCodeInput($event, 0)" (keydown)="onKeyDown($event, 0)" />
+      <input type="text" maxlength="1" class="code-input" name="code2" 
+             (input)="onCodeInput($event, 1)" (keydown)="onKeyDown($event, 1)" />
+      <input type="text" maxlength="1" class="code-input" name="code3" 
+             (input)="onCodeInput($event, 2)" (keydown)="onKeyDown($event, 2)" />
+      <input type="text" maxlength="1" class="code-input" name="code4" 
+             (input)="onCodeInput($event, 3)" (keydown)="onKeyDown($event, 3)" />
+      <input type="text" maxlength="1" class="code-input" name="code5" 
+             (input)="onCodeInput($event, 4)" (keydown)="onKeyDown($event, 4)" />
+    </div>
+    
+    <p class="error-text" *ngIf="codeError">{{ codeError }}</p>
+    
+    <button (click)="onCodeSubmit()" class="btn-signin" [disabled]="!isCodeComplete() || loading">
+      {{ loading ? 'Verifying...' : 'Verify Code' }}
+    </button>
+    
+    <button type="button" class="btn-back" (click)="goBack()">Back to Email</button>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer" [class.blur-content]="loading">
+  <div class="social-icons">
+    <i class="fab fa-x-twitter"></i>
+    <i class="fab fa-instagram"></i>
+    <i class="fab fa-youtube"></i>
+    <i class="fab fa-linkedin"></i>
+  </div>
+</footer>
+
+</body>
+</html>

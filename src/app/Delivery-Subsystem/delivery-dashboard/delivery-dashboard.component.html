@@ -1,0 +1,230 @@
+<div class="container">
+  <!-- Sidebar -->
+  <app-nav-bar-admin></app-nav-bar-admin>
+
+  <!-- Main Content -->
+  <main class="main">
+    <header class="header">
+      <div class="header-left">
+        <div class="page-title">
+          <h1>
+            <i class="fas fa-truck"></i>
+            Delivery Management
+          </h1>
+          <p class="page-subtitle">Manage deliveries, couriers, and tracking</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" 
+                 placeholder="Search deliveries..." 
+                 class="search-input"
+                 [(ngModel)]="searchTerm"
+                 (input)="onSearch()">
+        </div>
+
+        <div class="user-info" (click)="toggleProfileMenu()">
+          <div class="user-details">
+            <h4>{{ getCurrentUserName() }}</h4>
+            <span class="role">{{ getCurrentUserRole() }}</span>
+          </div>
+          <div class="user-avatar">{{ getCurrentUserInitials() }}</div>
+          <i class="fas fa-chevron-down dropdown-arrow" [class.rotated]="showProfileMenu"></i>
+          <div class="user-dropdown" [class.show]="showProfileMenu">
+            <a class="dropdown-item">
+              <i class="fas fa-user"></i>
+              <span>My Profile</span>
+            </a>
+            <a class="dropdown-item">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </a>
+            <a class="dropdown-item logout" (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1>Delivery Management</h1>
+        <div class="header-buttons">
+          <button class="manage-btn" (click)="manageCouriers()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="m22 11-3-3m0 0-3 3m3-3v6"/>
+            </svg>
+            Manage Couriers
+          </button>
+          <button class="analytics-btn" (click)="viewAnalytics()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3v18h18"/>
+              <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+            </svg>
+            Analytics
+          </button>
+          <button class="create-btn" (click)="toggleOrderSelection()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Create Delivery from Order
+          </button>
+        </div>
+      </div>
+
+      <!-- Order Selection Modal -->
+      <div class="order-modal" *ngIf="showOrderSelection">
+        <div class="order-modal-content">
+          <div class="modal-header">
+            <h3>Select Order to Create Delivery</h3>
+            <button class="close-btn" (click)="toggleOrderSelection()">×</button>
+          </div>
+          <div class="modal-body">
+            <div *ngIf="ordersWithoutDeliveries.length === 0" class="no-orders">
+              <p>No orders available for delivery creation.</p>
+            </div>
+            <div *ngFor="let order of ordersWithoutDeliveries" class="order-item">
+              <div class="order-info">
+                <div class="order-id">Order #{{ order.orderId }}</div>
+                <div class="order-details">
+                  <span class="customer">{{ order.user?.firstName }} {{ order.user?.lastName }}</span>
+                  <span class="date">{{ order.orderDate | date:'short' }}</span>
+                  <span class="total">R{{ order.orderTotal }}</span>
+                </div>
+              </div>
+              <button class="create-delivery-btn" (click)="createDeliveryFromOrder(order.orderId)">
+                Create Delivery
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters Section -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label for="statusFilter">Filter by Status:</label>
+          <select id="statusFilter" 
+                  [(ngModel)]="selectedStatus" 
+                  (change)="onStatusFilter()"
+                  class="filter-select">
+            <option value="">All Statuses</option>
+            <option *ngFor="let status of deliveryStatuses" [value]="status.statusName">
+              {{ status.statusName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="results-info">
+          <span>Showing {{ filteredDeliveries.length }} of {{ deliveries.length }} deliveries</span>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading deliveries...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error" class="error-container">
+        <p>{{ error }}</p>
+        <button class="retry-btn" (click)="loadDeliveries()">Retry</button>
+      </div>
+
+      <!-- Deliveries Table -->
+      <div *ngIf="!isLoading && !error" class="table-container">
+        <table class="deliveries-table">
+          <thead>
+            <tr>
+              <th (click)="sortBy('trackingNumber')" class="sortable">
+                Tracking # {{ getSortIcon('trackingNumber') }}
+              </th>
+              <th (click)="sortBy('orderId')" class="sortable">
+                Order ID {{ getSortIcon('orderId') }}
+              </th>
+              <th (click)="sortBy('deliveryAddressId')" class="sortable">
+                Address ID {{ getSortIcon('deliveryAddressId') }}
+              </th>
+              <th (click)="sortBy('deliveryDate')" class="sortable">
+                Delivery Date {{ getSortIcon('deliveryDate') }}
+              </th>
+              <th (click)="sortBy('deliveryStatus')" class="sortable">
+                Status {{ getSortIcon('deliveryStatus') }}
+              </th>
+              <th>Delivery Fee</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let delivery of filteredDeliveries" class="table-row">
+              <td class="table-cell">
+                <span class="tracking-number" (click)="trackDelivery(delivery.trackingNumber)">
+                  {{ delivery.trackingNumber }}
+                </span>
+              </td>
+              <td class="table-cell">
+                <div class="order-info">
+                  <span class="order-id">Order #{{ delivery.orderId }}</span>
+                </div>
+              </td>
+              <td class="table-cell">
+                <span class="address">
+                  {{ delivery.deliveryAddress?.streetAddress || 'Address ID: ' + delivery.deliveryAddressId }}
+                </span>
+              </td>
+              <td class="table-cell">
+                <span class="date">{{ formatDate(delivery.deliveryDate) }}</span>
+              </td>
+              <td class="table-cell">
+                <span class="status-badge" [ngClass]="getStatusBadgeClass(delivery.deliveryStatus)">
+                  {{ delivery.deliveryStatus }}
+                </span>
+              </td>
+              <td class="table-cell">
+                <span class="fee">Delivery Fee ID: {{ delivery.deliveryFeeId }}</span>
+              </td>
+              <td class="table-cell actions-cell">
+                <div class="action-buttons">
+                  <button class="edit-btn" (click)="editDelivery(delivery.deliveryId)" title="Edit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                  <button class="delete-btn" (click)="deleteDelivery(delivery)" title="Delete">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                      <line x1="10" y1="11" x2="10" y2="17"/>
+                      <line x1="14" y1="11" x2="14" y2="17"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div *ngIf="filteredDeliveries.length === 0" class="empty-state">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <h3>No deliveries found</h3>
+          <p>{{ searchTerm || selectedStatus ? 'Try adjusting your filters' : 'Create your first delivery to get started' }}</p>
+          <button class="create-btn" (click)="createDelivery()">Create Delivery</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<app-notification-modal></app-notification-modal>

@@ -1,0 +1,129 @@
+    <div class="form-group">
+      <button type="button" (click)="saveEvent()" class="button btn-success">Save</button>
+      <button type="button" (click)="cancel()" class="button btn-secondary">Cancel</button>
+    </div>
+<app-nav-bar-admin></app-nav-bar-admin>
+<app-notification-modal></app-notification-modal>
+
+<!-- Spinner Overlay -->
+<div *ngIf="isLoading" class="spinner-overlay">
+  <div class="spinner-container">
+    <div class="spinner"></div>
+    <div class="spinner-text">Updating event...</div>
+  </div>
+</div>
+
+<div class="admin-layout">
+  <div class="container">
+  <form>
+    <!-- fForm Header with Add Job Button -->
+    <div class="form-header">
+      <h2>Update Event</h2>
+      <button type="button" (click)="addJob()" class="button add-job-btn">Add Job</button>
+    </div>
+
+    <!-- Main Form Content -->
+    <div class="form-content">
+      <!-- Left Column - Form Inputs -->
+      <div class="form-inputs">
+        <div class="form-group">
+          <label for="eventName">Event Name</label>
+          <input 
+            type="text" 
+            id="eventName" 
+            [(ngModel)]="event.eventName" 
+            name="eventName" 
+            (ngModelChange)="saveEventData()"
+            (input)="validateEventName()"
+            #eventName="ngModel"
+            [class.invalid]="event.eventName && event.eventName.length > 50"
+            required 
+            class="textbox">
+          <div *ngIf="event.eventName && event.eventName.length > 50" class="error-message">
+            Event name must not exceed 50 characters. Current: {{ event.eventName.length }}/50
+          </div>
+        </div>
+        
+        <div class="form-group">
+            <div class="visibility-toggle">
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="event.isPublic" 
+                  name="isPublic"
+                  (ngModelChange)="saveEventData()">
+                Show in User Calendar
+              </label>
+              <small class="help-text">Check this box to make the event visible in the user calendar</small>
+            </div>
+          </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea 
+            id="description" 
+            [(ngModel)]="event.description" 
+            name="description"
+            (ngModelChange)="saveEventData()"
+            (input)="validateEventDescription()"
+            #description="ngModel"
+            [class.invalid]="event.description && event.description.length > 200"
+            class="textbox textarea"></textarea>
+          <div *ngIf="event.description && event.description.length > 200" class="error-message">
+            Event description must not exceed 200 characters. Current: {{ event.description.length }}/200
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input 
+            type="date" 
+            id="date" 
+            [(ngModel)]="event.date" 
+            name="date" 
+            (ngModelChange)="onDateChange($event)" 
+            required 
+            class="textbox">
+        </div>
+        
+        <div class="form-group">
+          <label>Status: {{ event.eventStatusName }}</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jobs Display -->
+    <div *ngIf="pendingJobs.length > 0" class="jobs-section">
+      <h3>Jobs</h3>
+      <div *ngFor="let job of pendingJobs; let i = index" class="job-card">
+        <div class="job-header">
+          <h4>{{ job.jobTitle }}</h4>
+          <div class="job-actions">
+            <button type="button" (click)="updateJob(job)" class="button update-btn">Update</button>
+            <button type="button" (click)="removeJob(i)" class="button remove-btn">Remove</button>
+          </div>
+        </div>
+        <p><strong>Description:</strong> {{ job.jobDescription }}</p>
+
+        <div *ngIf="job.employees && job.employees.length > 0" class="employees-section">
+          <p><strong>Assigned Employees:</strong></p>
+          <ul>
+            <li *ngFor="let employee of job.employees">
+              {{ employee.firstName }} {{ employee.lastName }} - {{ employee.email }}
+            </li>
+          </ul>
+        </div>
+        <div *ngIf="!job.employees || job.employees.length === 0" class="no-employees">
+          <p><em>No employees assigned</em></p>
+        </div>
+      </div>
+    </div>
+    
+  <!-- Removed duplicate save/cancel buttons without proper CSS -->
+      <div class="form-actions-bottom-right">
+        <button type="button" (click)="saveEvent()" class="btn btn-primary">Save</button>
+        <button type="button" (click)="cancel()" class="btn btn-secondary">Cancel</button>
+      </div>
+  </form>
+</div>
+</div>

@@ -1,0 +1,212 @@
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<div class="main-content">
+
+  <!-- Professional Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="page-title">
+        <h1>Runner Profile</h1>
+        <p class="page-subtitle">Detailed runner information and performance analytics</p>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="user-info">
+        <div class="user-details">
+          <h4>{{ getCurrentUserName() }}</h4>
+          <span class="role">{{ getCurrentUserRole() }}</span>
+        </div>
+        <div class="user-avatar">
+          {{ getCurrentUserInitials() }}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="content-container" *ngIf="runner">
+    
+    <!-- Professional Back Button -->
+    <div class="back-navigation">
+      <button class="breadcrumb-back" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Runners</span>
+      </button>
+    </div>
+    
+    <!-- Runner Profile Section -->
+    <div class="profile-section">
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-image-container">
+            <img 
+              [src]="getImageUrl(runner.runnerImage)" 
+              (error)="handleImageError($event)" 
+              [alt]="runner.user?.firstName + ' ' + runner.user?.surname"
+              class="profile-image" />
+            <div class="profile-status" [class]="milestoneReached ? 'achieved' : 'in-progress'">
+              <i class="fas" [class]="milestoneReached ? 'fa-check-circle' : 'fa-clock'"></i>
+            </div>
+          </div>
+          <div class="profile-info">
+            <h1 class="runner-name">{{ runner.user?.firstName }} {{ runner.user?.surname }}</h1>
+            <div class="runner-status">
+              <span class="status-badge" [class]="milestoneReached ? 'success' : 'pending'">
+                {{ milestoneReached ? 'Milestone Achieved' : 'In Progress' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      
+      <!-- Personal Information Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <h3><i class="fas fa-user"></i> Personal Information</h3>
+        </div>
+        <div class="card-content">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nationality</label>
+              <span>{{ runner.nationality }}</span>
+            </div>
+            <div class="info-item">
+              <label>Country of Residence</label>
+              <span>{{ runner.countryOfResidence }}</span>
+            </div>
+            <div class="info-item">
+              <label>ID Number</label>
+              <span>{{ runner.idNumber }}</span>
+            </div>
+            <div class="info-item">
+              <label>Cellphone</label>
+              <span>{{ runner.user?.cellphone }}</span>
+            </div>
+            <div class="info-item">
+              <label>Email Address</label>
+              <span>{{ runner.user?.email }}</span>
+            </div>
+            <div class="info-item">
+              <label>Shoe Size</label>
+              <span>{{ runner.shoeSize }}</span>
+            </div>
+            <div class="info-item">
+              <label>Clothing Size</label>
+              <span>{{ runner.clothingSize }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical Information Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <h3><i class="fas fa-heartbeat"></i> Medical Information</h3>
+        </div>
+        <div class="card-content">
+          <div class="medical-info">
+            <div class="medical-item">
+              <label>Known Allergies</label>
+              <p>{{ runner.allergies || 'No allergies reported' }}</p>
+            </div>
+            <div class="medical-item">
+              <label>Medical History</label>
+              <p>{{ runner.medicalHistory || 'No medical history reported' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Analytics Card -->
+      <div class="analytics-card">
+        <div class="card-header">
+          <h3><i class="fas fa-chart-line"></i> Donation Progress</h3>
+        </div>
+        <div class="card-content">
+          <div class="progress-section">
+            <div class="progress-circle">
+              <svg viewBox="0 0 150 150">
+                <circle class="bg" cx="75" cy="75" r="65"></circle>
+                <circle class="progress" 
+                        cx="75" cy="75" r="65"
+                        [attr.stroke-dasharray]="circumference"
+                        [attr.stroke-dashoffset]="progressOffset">
+                </circle>
+              </svg>
+              <div class="percentage">{{ progress }}%</div>
+            </div>
+            
+            <div class="progress-stats">
+              <div class="stat-item">
+                <div class="stat-value">R{{ totalDonations | number:'1.2-2' }}</div>
+                <div class="stat-label">Total Raised</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">R{{ (runner.targetAmount || runner.target || currentMilestone || 0) | number:'1.2-2' }}</div>
+                <div class="stat-label">Target Amount</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Donations History Section -->
+    <div class="donations-section">
+      <div class="section-header">
+        <h2><i class="fas fa-heart"></i> Donation History</h2>
+        <div class="donation-summary" *ngIf="donations && donations.length > 0">
+          <span class="donation-count">{{ donations.length }} donation{{ donations.length === 1 ? '' : 's' }}</span>
+        </div>
+      </div>
+
+      <!-- Donations List -->
+      <div class="donations-container" *ngIf="donations && donations.length > 0">
+        <div class="donations-grid">
+          <div class="donation-card" *ngFor="let donation of donations; trackBy: trackByDonationId">
+            <div class="donation-header">
+              <div class="donor-info">
+                <div class="donor-name">{{ donation.donorName || 'Anonymous Donor' }}</div>
+                <div class="donation-date">
+                  <i class="fas fa-calendar"></i>
+                  {{ formatDate(donation.donationDate || donation.createdAt) }}
+                </div>
+              </div>
+              <div class="donation-amount">
+                R{{ donation.amount | number:'1.2-2' }}
+              </div>
+            </div>
+            
+            <div class="donation-message" *ngIf="donation.message">
+              <p>"{{ donation.message }}"</p>
+            </div>
+            
+            <div class="donation-meta">
+              <span class="donation-type">Online</span>
+              <div class="donation-method">
+                <i class="fas fa-credit-card"></i>
+                Card Payment
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Donations State -->
+      <div class="empty-donations" *ngIf="!donations || donations.length === 0">
+        <div class="empty-icon">
+          <i class="fas fa-gift"></i>
+        </div>
+        <h3>No donations yet</h3>
+        <p>This runner hasn't received any donations yet. Encourage supporters to contribute to their cause.</p>
+      </div>
+    </div>
+
+  </div>
+</div>

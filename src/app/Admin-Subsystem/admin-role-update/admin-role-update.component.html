@@ -1,0 +1,90 @@
+<div class="nav-bar">
+    <div class="back-link" (click)="back()">
+      <i class="fas fa-arrow-left"></i>
+      <span>Back to Dashboard</span>
+    </div>
+  </div>
+
+<div class="container">
+  
+  <div class="content">
+    <h2 class="page-title">Manage Admin Role Permissions</h2>
+
+    <div class="form-group checkbox-group">
+      <label class="checkbox-item">
+        <input type="checkbox" [(ngModel)]="adminRoleData.enableEventCRUD" name="EnableEventCRUD">
+        <span class="custom-check"></span>
+        Enable ability to Create, Delete, Update & View Events
+      </label>
+
+      <label class="checkbox-item">
+        <input type="checkbox" [(ngModel)]="adminRoleData.enableProductCRUD" name="EnableProductCRUD">
+        <span class="custom-check"></span>
+        Enable ability to Create, Delete, Update & View Products
+      </label>
+
+      <label class="checkbox-item">
+        <input type="checkbox" [(ngModel)]="adminRoleData.enableDonationCRUD" name="EnableDonationCRUD">
+        <span class="custom-check"></span>
+        Enable ability to Create, Delete, Update & View Donations
+      </label>
+
+      <label class="checkbox-item">
+        <input type="checkbox" [(ngModel)]="adminRoleData.enableExpenditureCRUD" name="EnableExpenditureCRUD">
+        <span class="custom-check"></span>
+        Enable ability to Create, Delete, Update & View Expenditures
+      </label>
+
+      <label class="checkbox-item">
+        <input type="checkbox" [(ngModel)]="adminRoleData.enableInventoryCRUD" name="EnableInventoryCRUD">
+        <span class="custom-check"></span>
+        Enable ability to Create, Delete, Update & View Inventory
+      </label>
+
+ <label class="checkbox-item">
+        <input type="checkbox" [(ngModel)]="adminRoleData.enableDeliveryCRUD" name="EnableDeliveryCRUD">
+        <span class="custom-check"></span>
+        Enable ability to Create, Delete, Update & View Delivery
+      </label>
+
+
+       <label class="checkbox-item">
+        <input type="checkbox" [(ngModel)]="adminRoleData.enableEmployeeCRUD" name="enableEmployeeCRUD">
+        <span class="custom-check"></span>
+        Enable ability to Create, Delete, Update & View Employees
+      </label>
+
+       <label class="checkbox-item">
+        <input type="checkbox" [(ngModel)]="adminRoleData.enableOrderCRUD" name="enableOrderCRUD">
+        <span class="custom-check"></span>
+        Enable ability to Create, Delete, Update & View Orders
+      </label>
+
+
+       <label class="checkbox-item">
+        <input type="checkbox" [(ngModel)]="adminRoleData.enableRunnerCRUD" name="enableRunnerCRUD">
+        <span class="custom-check"></span>
+        Enable ability to Create, Delete,Update & View Runner
+      </label>
+
+
+
+      
+       
+
+
+
+
+
+
+
+
+    </div>
+
+    <button (click)="updateAdminRole()" class="btn btn-primary submit-btn">Update Role</button>
+
+    <div *ngIf="showSuccess" class="success-alert">
+      {{ successMessage }}
+    </div>
+  </div>
+</div>

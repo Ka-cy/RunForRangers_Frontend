@@ -1,0 +1,121 @@
+<app-nav-bar-admin></app-nav-bar-admin>
+<app-notification-modal></app-notification-modal>
+
+<div class="container">
+  <h2>Edit Expenditure</h2>
+
+  <div class="card">
+    <h5>Expenditure Details</h5>
+
+    <div class="form-group">
+      <label>Expenditure ID:</label>
+      <span>{{ expenditureId }}</span>
+    </div>
+
+    <form [formGroup]="expenditureForm" (ngSubmit)="onSave()">
+      <div class="form-group">
+        <label for="purpose">Purpose <span class="required">*</span></label>
+        <input 
+          id="purpose" 
+          formControlName="Purpose" 
+          type="text" 
+          class="form-control"
+          [class.ng-invalid]="expenditureForm.get('Purpose')?.invalid && expenditureForm.get('Purpose')?.touched"
+          [class.ng-touched]="expenditureForm.get('Purpose')?.touched" />
+        <div *ngIf="expenditureForm.get('Purpose')?.invalid && expenditureForm.get('Purpose')?.touched" class="error-message">
+          <span *ngIf="expenditureForm.get('Purpose')?.errors?.['required']">Purpose is required.</span>
+          <span *ngIf="expenditureForm.get('Purpose')?.errors?.['maxlength']">Purpose must not exceed 50 characters. Current: {{ expenditureForm.get('Purpose')?.value?.length || 0 }}/50</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description <span class="required">*</span></label>
+        <textarea 
+          id="description" 
+          formControlName="Description" 
+          class="form-control"
+          [class.ng-invalid]="expenditureForm.get('Description')?.invalid && expenditureForm.get('Description')?.touched"
+          [class.ng-touched]="expenditureForm.get('Description')?.touched"></textarea>
+        <div *ngIf="expenditureForm.get('Description')?.invalid && expenditureForm.get('Description')?.touched" class="error-message">
+          <span *ngIf="expenditureForm.get('Description')?.errors?.['required']">Description is required.</span>
+          <span *ngIf="expenditureForm.get('Description')?.errors?.['maxlength']">Description must not exceed 200 characters. Current: {{ expenditureForm.get('Description')?.value?.length || 0 }}/200</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="amount">Amount <span class="required">*</span></label>
+        <input 
+          id="amount" 
+          formControlName="Amount" 
+          type="number" 
+          class="form-control" 
+          min="0.01" 
+          step="0.01"
+          [class.ng-invalid]="expenditureForm.get('Amount')?.invalid && expenditureForm.get('Amount')?.touched"
+          [class.ng-touched]="expenditureForm.get('Amount')?.touched" />
+        <div *ngIf="expenditureForm.get('Amount')?.invalid && expenditureForm.get('Amount')?.touched" class="error-message">
+          Amount is required and must be a positive number.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfCreation">Date <span class="required">*</span></label>
+        <input id="dateOfCreation" formControlName="DateOfCreation" type="date" class="form-control" [attr.max]="today" />
+        <div *ngIf="expenditureForm.get('DateOfCreation')?.invalid && expenditureForm.get('DateOfCreation')?.touched" class="error-message">
+          Date is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="receipt">Receipt (PDF or Image)</label>
+        <input
+          type="file"
+          id="receipt"
+          class="form-control"
+          (change)="onFileSelected($event)"
+          accept="image/jpeg,image/jpg,image/png,application/pdf"
+        />
+        <small class="form-text text-muted">
+          Accepted formats: JPEG, PNG, PDF (Max size: 5MB)
+        </small>
+
+        <!-- Receipt Preview -->
+        <div *ngIf="currentReceiptImage" class="receipt-preview">
+          <!-- Image Preview -->
+          <div *ngIf="isImage()" class="card">
+            <div class="button-container receipt-header">
+              <strong>Current Receipt</strong>
+              <button type="button" class="btn btn-outline-secondary" (click)="removeReceipt()">Remove Receipt</button>
+            </div>
+            <div class="preview-content">
+              <img [src]="currentReceiptImage" alt="Receipt Preview" class="receipt-image" />
+            </div>
+          </div>
+
+          <!-- PDF Preview -->
+          <div *ngIf="isPDF()" class="card">
+            <div class="button-container receipt-header">
+              <strong>Current PDF Receipt</strong>
+              <div class="button-group">
+                <button type="button" class="btn btn-outline-secondary" (click)="downloadPDF()">Download PDF</button>
+                <button type="button" class="btn btn-outline-secondary" (click)="removeReceipt()">Remove Receipt</button>
+              </div>
+            </div>
+            <div class="preview-content">
+              <i class="fas fa-file-pdf fa-3x"></i>
+              <p>PDF receipt available</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- No receipt -->
+        <div *ngIf="!currentReceiptImage" class="no-receipt">No receipt currently uploaded</div>
+      </div>
+
+      <div class="form-actions-bottom-right">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" (click)="onCancel()" class="btn btn-secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

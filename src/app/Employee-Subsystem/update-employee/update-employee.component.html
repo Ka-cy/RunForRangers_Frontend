@@ -1,0 +1,203 @@
+<!-- Sidebar Navigation -->
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<!-- Main Content Area -->
+<div class="main-content">
+  <!-- Professional Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="page-title">
+        <h1>
+          <i class="fas fa-user-edit"></i>
+          Update Employee
+        </h1>
+        <p class="page-subtitle">Modify employee information and details</p>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="breadcrumb">
+        <a [routerLink]="['/employees']" class="breadcrumb-link">
+          <i class="fas fa-users"></i>
+          Employees
+        </a>
+        <i class="fas fa-chevron-right breadcrumb-separator"></i>
+        <span class="breadcrumb-current">Update</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content Container -->
+  <div class="content-container">
+    <div class="form-container">
+      <!-- Form Header -->
+      <div class="form-header">
+        <div class="form-icon">
+          <i class="fas fa-user-edit"></i>
+        </div>
+        <h2>Employee Information</h2>
+        <p>Update the details below to modify the employee profile</p>
+      </div>
+
+      <!-- Employee Image Preview -->
+      <div class="image-preview-section">
+        <div class="image-preview">
+          <img
+            [src]="employeeImagePreview || getImageUrl(employee.employeeImage || '')"
+            (error)="handleImageError($event)"
+            alt="Employee Image"
+            class="preview-img"
+          />
+          <div class="image-overlay">
+            <i class="fas fa-camera"></i>
+          </div>
+        </div>
+        <p class="image-hint">Click to change profile picture</p>
+      </div>
+
+      <!-- Employee Form -->
+      <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="employee-form">
+        <div class="form-grid">
+          <!-- First Name -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user"></i>
+              First Name
+            </label>
+            <input 
+              type="text" 
+              formControlName="firstName"
+              class="form-input" 
+              placeholder="Enter first name"
+              [class.error]="employeeForm.get('firstName')?.invalid && employeeForm.get('firstName')?.touched" />
+            <div class="input-hint">
+              <i class="fas fa-info-circle"></i>
+              Minimum 2 characters required
+            </div>
+            <div *ngIf="employeeForm.get('firstName')?.invalid && employeeForm.get('firstName')?.touched" class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span *ngIf="employeeForm.get('firstName')?.errors?.['required']">First name is required</span>
+              <span *ngIf="employeeForm.get('firstName')?.errors?.['minlength']">First name must be at least 2 characters</span>
+              <span *ngIf="employeeForm.get('firstName')?.errors?.['maxlength']">First name cannot exceed 50 characters</span>
+            </div>
+          </div>
+
+          <!-- Last Name -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user"></i>
+              Last Name
+            </label>
+            <input 
+              type="text" 
+              formControlName="lastName"
+              class="form-input" 
+              placeholder="Enter last name"
+              [class.error]="employeeForm.get('lastName')?.invalid && employeeForm.get('lastName')?.touched" />
+            <div class="input-hint">
+              <i class="fas fa-info-circle"></i>
+              Minimum 2 characters required
+            </div>
+            <div *ngIf="employeeForm.get('lastName')?.invalid && employeeForm.get('lastName')?.touched" class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span *ngIf="employeeForm.get('lastName')?.errors?.['required']">Last name is required</span>
+              <span *ngIf="employeeForm.get('lastName')?.errors?.['minlength']">Last name must be at least 2 characters</span>
+              <span *ngIf="employeeForm.get('lastName')?.errors?.['maxlength']">Last name cannot exceed 50 characters</span>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-envelope"></i>
+              Email Address
+            </label>
+            <input 
+              type="email" 
+              formControlName="email"
+              class="form-input" 
+              placeholder="example@company.com"
+              [class.error]="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched" />
+            <div class="input-hint">
+              <i class="fas fa-info-circle"></i>
+              Enter a valid email address
+            </div>
+            <div *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched" class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required</span>
+              <span *ngIf="employeeForm.get('email')?.errors?.['email'] || employeeForm.get('email')?.errors?.['pattern']">Please enter a valid email address</span>
+              <span *ngIf="employeeForm.get('email')?.errors?.['maxlength']">Email cannot exceed 50 characters</span>
+            </div>
+          </div>
+
+          <!-- Phone Number -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-phone"></i>
+              Phone Number
+            </label>
+            <input 
+              type="tel" 
+              formControlName="cellPhone"
+              class="form-input" 
+              placeholder="0123456789"
+              [class.error]="employeeForm.get('cellPhone')?.invalid && employeeForm.get('cellPhone')?.touched" />
+            <div class="input-hint">
+              <i class="fas fa-info-circle"></i>
+              Enter 1-20 digits (numbers only)
+            </div>
+            <div *ngIf="employeeForm.get('cellPhone')?.invalid && employeeForm.get('cellPhone')?.touched" class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span *ngIf="employeeForm.get('cellPhone')?.errors?.['required']">Phone number is required</span>
+              <span *ngIf="employeeForm.get('cellPhone')?.errors?.['pattern']">Phone number must be 1-20 digits</span>
+            </div>
+          </div>
+
+          <!-- File Upload -->
+          <div class="form-group file-upload-group">
+            <label class="form-label">
+              <i class="fas fa-image"></i>
+              Profile Image
+            </label>
+            <div class="file-upload-wrapper">
+              <input type="file" (change)="onFileSelected($event)" accept="image/*" 
+                     class="file-input" id="fileInput" />
+              <label for="fileInput" class="file-upload-btn">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Change Image
+              </label>
+              <span class="file-name" *ngIf="selectedFileName">{{ selectedFileName }}</span>
+            </div>
+            <div class="input-hint">
+              <i class="fas fa-info-circle"></i>
+              Supported formats: JPG, PNG, GIF (Max 5MB)
+            </div>
+            <button 
+              type="button" 
+              *ngIf="selectedFile" 
+              (click)="resetImage()" 
+              class="btn-reset">
+              <i class="fas fa-undo"></i>
+              Reset to Original
+            </button>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="cancel()">
+            <i class="fas fa-times"></i>
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="employeeForm.invalid">
+            <i class="fas fa-save"></i>
+            Update Employee
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Modal -->
+<app-notification-modal></app-notification-modal>

@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Add New Category</h2>
+
+<mat-dialog-content>
+  <div class="form-group">
+    <label>Category Name</label>
+    <input type="text" [formControl]="categoryName" placeholder="e.g., Clothing">
+  </div>
+
+  <div class="form-group">
+    <label>Description</label>
+    <textarea [formControl]="description" rows="3" placeholder="Items of clothing"></textarea>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()" []="!categoryName.valid">Save</button>
+</mat-dialog-actions>
+
+<!-- Notification Modal -->
+<app-notification-modal></app-notification-modal>

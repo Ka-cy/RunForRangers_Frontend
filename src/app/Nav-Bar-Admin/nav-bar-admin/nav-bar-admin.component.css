@@ -1,0 +1,293 @@
+/* Professional Admin Navigation Sidebar */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px; /* Increased from 240px */
+  height: 100vh;
+  background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
+  box-shadow: 6px 0 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  overflow-y: auto;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  border-right: 2px solid #64748b;
+}
+
+/* Header Section */
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.3);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(10px);
+}
+
+.company-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.logo-icon {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.company-info .logo {
+  color: #f1f5f9;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.tagline {
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* Admin Profile */
+.admin-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(251, 191, 36, 0.15));
+  border-radius: 12px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.admin-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(245, 158, 11, 0.4);
+}
+
+.admin-info .admin-name {
+  color: #f1f5f9;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 3px 0;
+}
+
+.admin-info .admin-role {
+  color: #cbd5e1;
+  font-size: 12px;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 0;
+}
+
+.nav-section {
+  margin-bottom: 28px;
+}
+
+.nav-section-title {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: 0 20px 12px 20px;
+  display: block;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-list li {
+  margin: 2px 12px;
+}
+
+.nav-list a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.nav-list a:hover {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f1f5f9;
+  border-color: rgba(245, 158, 11, 0.3);
+  transform: translateX(2px);
+}
+
+.nav-list a i {
+  width: 18px;
+  text-align: center;
+  font-size: 16px;
+  color: #f59e0b;
+}
+
+.nav-list li.active a {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.15));
+  color: #fbbf24;
+  border-color: #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.nav-list li.active a:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(251, 191, 36, 0.2));
+  color: #fbbf24;
+}
+
+/* Dropdown Functionality */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-arrow {
+  margin-left: auto;
+  font-size: 11px;
+  transition: transform 0.3s ease;
+  color: #94a3b8;
+}
+
+.dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  list-style: none;
+  margin: 6px 0 0 0;
+  padding: 0;
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: all 0.4s ease;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.dropdown-menu.show {
+  max-height: 250px;
+  opacity: 1;
+}
+
+.dropdown-menu li a {
+  padding: 10px 18px 10px 48px;
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+  border-radius: 0;
+  border: none;
+}
+
+.dropdown-menu li a:hover {
+  background: rgba(245, 158, 11, 0.1);
+  color: #cbd5e1;
+  transform: none;
+}
+
+/* Footer/Logout Section */
+.sidebar-footer {
+  padding: 20px 12px;
+  border-top: 1px solid rgba(100, 116, 139, 0.3);
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #f87171;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.05);
+}
+
+.logout-btn:hover {
+  background: rgba(248, 113, 113, 0.15);
+  color: #fca5a5;
+  border-color: rgba(248, 113, 113, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.2);
+}
+
+.logout-btn i {
+  width: 18px;
+  text-align: center;
+  font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+}
+
+/* Scrollbar Styling */
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #f59e0b, #fbbf24);
+  border-radius: 2px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d97706, #f59e0b);
+}

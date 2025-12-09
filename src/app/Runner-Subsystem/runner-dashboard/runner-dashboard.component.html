@@ -1,0 +1,295 @@
+<!-- Loading Spinner Overlay -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner"></div>
+</div>
+
+<!-- Sidebar -->
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<!-- Main Content Area -->
+<div class="main-content">
+  <!-- Professional Top Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="page-title">
+        <h1>
+          <i class="fas fa-running"></i>
+          Runner Management
+        </h1>
+        <p class="page-subtitle">Manage and monitor all registered runners</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Search Bar -->
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          type="text"
+          class="search-input"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchInput(searchTerm)"
+          placeholder="Search by name, nationality, or ID..."
+        />
+        <button *ngIf="searchTerm" (click)="clearSearch()" class="clear-search-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Notification Bell -->
+      <div class="notification-bell" (click)="toggleNotifications()">
+        <i class="fas fa-bell"></i>
+        <span class="notification-count" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+        
+        <!-- Notifications Dropdown -->
+        <div class="notifications-dropdown" [class.show]="showNotifications">
+          <div class="notification-header">
+            <h4>Notifications</h4>
+            <button class="mark-all-read" (click)="viewAllNotifications()">View All</button>
+          </div>
+          <div class="notification-list">
+            <div class="notification-item" *ngFor="let notification of systemNotifications"
+                 [class.read]="notification.isRead"
+                 (click)="viewNotification(notification)">
+              <i class="fas" [ngClass]="{
+                'fa-user-plus': notification.notificationType.notificationTypeName === 'Registration',
+                'fa-flag-checkered': notification.notificationType.notificationTypeName === 'Milestone',
+                'fa-heart': notification.notificationType.notificationTypeName === 'Donation'
+              }"></i>
+              <div class="notification-content">
+                <p>{{ notification.title }}</p>
+                <span class="time">{{ notification.createdAt | date:'short' }}</span>
+              </div>
+            </div>
+            <div class="no-notifications" *ngIf="systemNotifications.length === 0">
+              No new notifications
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Info with Dropdown -->
+      <div class="user-info" (click)="toggleProfileMenu()">
+        <div class="user-details">
+          <h4>{{ getCurrentUserName() }}</h4>
+          <span class="role">{{ getCurrentUserRole() }}</span>
+        </div>
+        <div class="user-avatar">{{ getCurrentUserInitials() }}</div>
+        <i class="fas fa-chevron-down dropdown-arrow" [ngClass]="{'rotated': showProfileMenu}"></i>
+        
+        <!-- User Dropdown Menu -->
+        <div class="user-dropdown" [ngClass]="{'show': showProfileMenu}">
+          <a class="dropdown-item" (click)="editProfile()">
+            <i class="fas fa-user"></i>
+            <span>My Profile</span>
+          </a>
+          <a class="dropdown-item" (click)="viewSettings()">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+          <a class="dropdown-item logout" (click)="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Search and Actions Section -->
+  <div class="search-actions-section">
+    <div class="action-buttons">
+      <button class="action-btn milestone-btn" (click)="navigateToUpdateMilestone()">
+        <i class="fas fa-flag-checkered"></i>
+        Update Milestone
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="stats-section">
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-running"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{runners.length}}</h3>
+        <p>Total Runners</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon active">
+        <i class="fas fa-user-check"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{getActiveRunners()}}</h3>
+        <p>Active Runners</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon milestone">
+        <i class="fas fa-flag-checkered"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{getMilestoneReachedCount()}}</h3>
+        <p>Milestone Reached</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon progress">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{getAverageProgress()}}%</h3>
+        <p>Avg Milestone Progress</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Controls -->
+  <div class="content-controls">
+    <div class="controls-left">
+      <h2>Runner Directory</h2>
+      <span class="result-count">{{filteredRunners.length}} runners found</span>
+    </div>
+
+    <div class="controls-center">
+      <!-- Sort Options -->
+      <div class="sort-container">
+        <label for="sortBy">Sort by:</label>
+        <select id="sortBy" [(ngModel)]="sortBy" (change)="applySortAndFilter()">
+          <option value="name">Name</option>
+          <option value="progress">Progress</option>
+          <option value="nationality">Nationality</option>
+          <option value="milestone">Milestone Status</option>
+        </select>
+        <button class="sort-order-btn" (click)="toggleSortOrder()" [title]="sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending'">
+          <i class="fas" [class.fa-sort-amount-up]="sortOrder === 'asc'" [class.fa-sort-amount-down]="sortOrder === 'desc'"></i>
+        </button>
+      </div>
+
+      <!-- Filter Options -->
+      <div class="filter-container">
+        <label for="filterBy">Filter:</label>
+        <select id="filterBy" [(ngModel)]="filterBy" (change)="applySortAndFilter()">
+          <option value="all">All Runners</option>
+          <option value="active">Active Only</option>
+          <option value="inactive">Inactive Only</option>
+          <option value="milestone-reached">Milestone Reached</option>
+          <option value="milestone-pending">Milestone Pending</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="controls-right">
+      <!-- View Toggle -->
+      <div class="view-options">
+        <button class="view-btn" [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')">
+          <i class="fas fa-th"></i> Grid
+        </button>
+        <button class="view-btn" [class.active]="viewMode === 'list'" (click)="setViewMode('list')">
+          <i class="fas fa-list"></i> List
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Runner Content Container -->
+  <div class="runners-content">
+    <!-- Grid View -->
+    <div class="runner-cards" *ngIf="viewMode === 'grid'">
+      <div class="card" *ngFor="let runner of filteredRunners">
+        <div class="card-header">
+          <div class="runner-image">
+            <img 
+              [src]="getImageUrl(runner.runnerImage)" 
+              (error)="handleImageError($event)" 
+              [alt]="runner.user?.firstName + ' ' + runner.user?.surname" />
+            <div class="status-badge" [class.active]="runner.progressPercentage > 0">
+              {{runner.progressPercentage > 0 ? 'Active' : 'Inactive'}}
+            </div>
+            <div class="milestone-badge" *ngIf="runner.milestoneReached">
+              <i class="fas fa-flag-checkered"></i>
+            </div>
+          </div>
+          <div class="runner-basic-info">
+            <h3>{{ runner.user?.firstName }} {{ runner.user?.surname }}</h3>
+            <p class="runner-id">ID: {{ runner.idNumber }}</p>
+          </div>
+        </div>
+
+        <div class="runner-details">
+          <div class="detail-row">
+            <span class="detail-label">Nationality:</span>
+            <span class="detail-value">{{ runner.nationality }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Phone:</span>
+            <span class="detail-value">{{ runner.user?.cellphone }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Residence:</span>
+            <span class="detail-value">{{ runner.countryOfResidence }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Shoe Size:</span>
+            <span class="detail-value">{{ runner.shoeSize }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Clothing:</span>
+            <span class="detail-value">{{ runner.clothingSize }}</span>
+          </div>
+          
+          <!-- Progress Section -->
+          <div class="progress-section">
+            <div class="progress-header">
+              <span class="progress-label">Milestone Progress</span>
+              <span class="progress-percentage">{{ runner.progressPercentage | number:'1.0-2' }}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress" [style.width.%]="runner.progressPercentage"></div>
+            </div>
+            <div class="milestone-status" [class.reached]="runner.milestoneReached">
+              {{ runner.milestoneReached ? 'Milestone Reached!' : 'Working towards milestone' }}
+            </div>
+          </div>
+
+          <!-- Medical Info -->
+          <div class="medical-info">
+            <button class="medical-toggle" (click)="toggleMedicalInfo(runner.userId)">
+              <i class="fas" [class.fa-plus-circle]="!runner.showMedical" [class.fa-minus-circle]="runner.showMedical"></i>
+              Medical Information
+            </button>
+            <div class="medical-details" [class.expanded]="runner.showMedical">
+              <p><strong>Allergies:</strong> {{ runner.allergies || 'None reported' }}</p>
+              <p><strong>Medical History:</strong> {{ runner.medicalHistory || 'None reported' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="runner-actions">
+          <button class="view-button" (click)="viewRunner(runner.userId)">
+            <i class="fas fa-eye"></i>
+            View Details
+          </button>
+          <button class="delete-button" (click)="deleteRunner(runner.userId)">
+            <i class="fas fa-trash-alt"></i>
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <app-runner-list 
+      *ngIf="viewMode === 'list'"
+      [runners]="filteredRunners"
+      (viewRunner)="viewRunner($event)"
+      (deleteRunner)="deleteRunner($event)"
+      (toggleMedical)="toggleMedicalInfo($event)">
+    </app-runner-list>
+  </div>
+</div>
+
+<!-- Notification Modal -->
+<app-notification-modal></app-notification-modal>

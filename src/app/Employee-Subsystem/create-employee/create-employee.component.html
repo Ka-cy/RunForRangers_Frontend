@@ -1,0 +1,215 @@
+<!-- Sidebar Navigation -->
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<!-- Main Content Area -->
+<div class="main-content">
+  <!-- Professional Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="page-title">
+        <h1>
+          <i class="fas fa-user-plus"></i>
+          Create Employee
+        </h1>
+        <p class="page-subtitle">Add a new team member to your organization</p>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="breadcrumb">
+        <a [routerLink]="['/employees']" class="breadcrumb-link">
+          <i class="fas fa-users"></i>
+          Employees
+        </a>
+        <i class="fas fa-chevron-right breadcrumb-separator"></i>
+        <span class="breadcrumb-current">Create New</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content Container -->
+  <div class="content-container">
+    <div class="form-container">
+      <!-- Form Header -->
+      <div class="form-header">
+        <div class="form-icon">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <h2>Employee Information</h2>
+        <p>Fill in the details below to create a new employee profile</p>
+      </div>
+
+      <!-- Employee Image Preview -->
+      <div class="image-preview-section">
+        <div class="image-preview">
+          <img
+            [src]="getImageUrl(newEmployee.employeeImage || '')"
+            (error)="handleImageError($event)"
+            alt="Employee Image"
+            class="preview-img"
+          />
+          <div class="image-overlay">
+            <i class="fas fa-camera"></i>
+          </div>
+        </div>
+        <p class="image-hint">Click to upload profile picture</p>
+      </div>
+
+      <!-- Employee Form -->
+      <form (ngSubmit)="saveEmployee()" #employeeForm="ngForm" class="employee-form">
+        <div class="form-grid">
+          <!-- First Name -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user"></i>
+              First Name
+            </label>
+            <input 
+              type="text" 
+              [(ngModel)]="newEmployee.firstName" 
+              name="firstName" 
+              required 
+              minlength="2"
+              maxlength="50"
+              class="form-input" 
+              #firstName="ngModel"
+              placeholder="Enter first name"
+              [class.error]="firstName.invalid && firstName.touched" />
+            <div class="input-hint">
+              <i class="fas fa-info-circle"></i>
+              Minimum 2 characters required
+            </div>
+            <div *ngIf="firstName.invalid && firstName.touched" class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span *ngIf="firstName.errors?.['required']">First name is required</span>
+              <span *ngIf="firstName.errors?.['minlength']">First name must be at least 2 characters</span>
+              <span *ngIf="firstName.errors?.['maxlength']">First name cannot exceed 50 characters</span>
+            </div>
+          </div>
+
+          <!-- Last Name -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user"></i>
+              Last Name
+            </label>
+            <input 
+              type="text" 
+              [(ngModel)]="newEmployee.lastName" 
+              name="lastName" 
+              required 
+              minlength="2"
+              maxlength="50"
+              class="form-input" 
+              #lastName="ngModel"
+              placeholder="Enter last name"
+              [class.error]="lastName.invalid && lastName.touched" />
+            <div class="input-hint">
+              <i class="fas fa-info-circle"></i>
+              Minimum 2 characters required
+            </div>
+            <div *ngIf="lastName.invalid && lastName.touched" class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span *ngIf="lastName.errors?.['required']">Last name is required</span>
+              <span *ngIf="lastName.errors?.['minlength']">Last name must be at least 2 characters</span>
+              <span *ngIf="lastName.errors?.['maxlength']">Last name cannot exceed 50 characters</span>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-envelope"></i>
+              Email Address
+            </label>
+            <input 
+              type="email" 
+              [(ngModel)]="newEmployee.email" 
+              name="email" 
+              required 
+              pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+              maxlength="50"
+              class="form-input" 
+              #email="ngModel"
+              placeholder="example@company.com"
+              [class.error]="email.invalid && email.touched" />
+            <div class="input-hint">
+              <i class="fas fa-info-circle"></i>
+              Enter a valid email address
+            </div>
+            <div *ngIf="email.invalid && email.touched" class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span *ngIf="email.errors?.['required']">Email is required</span>
+              <span *ngIf="email.errors?.['email'] || email.errors?.['pattern']">Please enter a valid email address</span>
+              <span *ngIf="email.errors?.['maxlength']">Email cannot exceed 50 characters</span>
+            </div>
+          </div>
+
+          <!-- Phone Number -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-phone"></i>
+              Phone Number
+            </label>
+            <input 
+              type="tel" 
+              [(ngModel)]="newEmployee.cellPhone" 
+              name="cellPhone" 
+              required 
+              pattern="^[0-9]{1,20}$"
+              maxlength="20"
+              class="form-input" 
+              #cellPhone="ngModel"
+              placeholder="0123456789"
+              [class.error]="cellPhone.invalid && cellPhone.touched" />
+            <div class="input-hint">
+              <i class="fas fa-info-circle"></i>
+              Enter 1-20 digits (numbers only)
+            </div>
+            <div *ngIf="cellPhone.invalid && cellPhone.touched" class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span *ngIf="cellPhone.errors?.['required']">Phone number is required</span>
+              <span *ngIf="cellPhone.errors?.['pattern']">Phone number must be 1-20 digits</span>
+            </div>
+          </div>
+
+          <!-- File Upload -->
+          <div class="form-group file-upload-group">
+            <label class="form-label">
+              <i class="fas fa-image"></i>
+              Profile Image
+            </label>
+            <div class="file-upload-wrapper">
+              <input type="file" (change)="onFileSelected($event)" accept="image/*" 
+                     class="file-input" id="fileInput" />
+              <label for="fileInput" class="file-upload-btn">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Choose Image
+              </label>
+              <span class="file-name" *ngIf="selectedFileName">{{ selectedFileName }}</span>
+            </div>
+            <div class="input-hint">
+              <i class="fas fa-info-circle"></i>
+              Supported formats: JPG, PNG, GIF (Max 5MB)
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="cancel()">
+            <i class="fas fa-times"></i>
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="!employeeForm.form.valid">
+            <i class="fas fa-save"></i>
+            Create Employee
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Modal -->
+<app-notification-modal></app-notification-modal>

@@ -1,0 +1,22 @@
+export interface UserAddress {
+  userAddressId?: number;
+  userId: number;
+  streetAddress: string;
+  suburb: string;
+  postalCode: string;
+  cityId: number;
+  provinceId: number;
+  countryId: number;
+  isDefault?: boolean;
+}
+
+export interface OrderAddress {
+  orderAddressId?: number;
+  orderId: number;
+  streetAddress: string;
+  suburb: string;
+  postalCode: string;
+  cityId: number;
+  provinceId: number;
+  countryId: number;
+}

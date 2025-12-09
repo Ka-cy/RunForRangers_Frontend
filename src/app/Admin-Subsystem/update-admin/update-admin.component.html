@@ -1,0 +1,170 @@
+<div class="nav-bar">
+  <div class="back-link" (click)="back()">
+    <i class="fas fa-arrow-left"></i>
+    <span>Back to Dashboard</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="form-card">
+    <div class="profile-header">
+      <div class="header-icon">
+        <i class="fas fa-user-edit"></i>
+      </div>
+      <h2>Update Admin Profile</h2>
+    </div>
+
+    <form class="profile-form" (ngSubmit)="Submit()">
+      <div *ngIf="errorMessage" class="error-message general-error">
+        <i class="fas fa-exclamation-triangle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <div class="form-section image-section">
+        <div class="section-title">
+          <i class="fas fa-camera"></i>
+          Profile Image
+        </div>
+        
+        <div class="image-upload-container">
+          <div class="image-preview-wrapper">
+            <div class="image-preview" 
+                 [class.no-image]="!imagePreview"
+                 (click)="triggerFileUpload()"
+                 (mouseenter)="showImageOverlay = true"
+                 (mouseleave)="showImageOverlay = false">
+              
+              <img *ngIf="imagePreview" [src]="imagePreview" alt="Profile Preview"/>
+              
+              <div *ngIf="!imagePreview" class="no-image-placeholder">
+                <i class="fas fa-user"></i>
+                <span>Click to add image</span>
+              </div>
+
+              <div class="image-overlay" *ngIf="imagePreview && showImageOverlay">
+                <div>
+                  <button type="button" class="change-image-btn" 
+                          (click)="$event.stopPropagation(); triggerFileUpload()" title="Change Image">
+                    <i class="fas fa-camera"></i>
+                  </button>
+                  <button type="button" class="remove-image-btn" 
+                          (click)="$event.stopPropagation(); removeImage()" title="Remove Image">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="image-upload-controls">
+            <input type="file" #fileInput id="imageUpload" 
+                   accept="image/*" (change)="onFileSelected($event)">
+            
+            <label for="imageUpload" class="upload-btn">
+              <i class="fas fa-upload"></i>
+              Choose Image
+            </label>
+            
+            <div class="upload-info">
+              <small>Click on the image or use the button above</small>
+              <small>Maximum file size: 5MB</small>
+              <small>Supported formats: JPG, PNG, GIF</small>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="objErrorMessage.ImageError" class="error-message">
+          <i class="fas fa-exclamation-triangle"></i>
+          {{ objErrorMessage.ImageError }}
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">
+          <i class="fas fa-user"></i>
+          Personal Information
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="firstName" class="required">First Name</label>
+            <div class="input-wrapper">
+              <i class="fas fa-user"></i>
+              <input type="text" id="firstName" [(ngModel)]="updateAdmin.firstName" 
+                     name="firstName" [class.invalid]="objErrorMessage.FirstnameError" required>
+            </div>
+            <div *ngIf="objErrorMessage.FirstnameError" class="error-message">
+              {{ objErrorMessage.FirstnameError }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName" class="required">Last Name</label>
+            <div class="input-wrapper">
+              <i class="fas fa-user"></i>
+              <input type="text" id="lastName" [(ngModel)]="updateAdmin.surname" 
+                     name="lastName" [class.invalid]="objErrorMessage.SurnameError" required>
+            </div>
+            <div *ngIf="objErrorMessage.SurnameError" class="error-message">
+              {{ objErrorMessage.SurnameError }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">
+          <i class="fas fa-envelope"></i>
+          Contact Information
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="email" class="required">Email Address</label>
+            <div class="input-wrapper">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="email" [(ngModel)]="updateAdmin.email" 
+                     name="email" [class.invalid]="objErrorMessage.EmailError" readonly>
+            </div>
+            <div *ngIf="objErrorMessage.EmailError" class="error-message">
+              {{ objErrorMessage.EmailError }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phone" class="required">Phone Number</label>
+            <div class="input-wrapper">
+              <i class="fas fa-phone"></i>
+              <input type="tel" id="phone" [(ngModel)]="updateAdmin.cellphone" 
+                     name="phone" [class.invalid]="objErrorMessage.CellphoneError" placeholder="0123456789">
+            </div>
+            <div *ngIf="objErrorMessage.CellphoneError" class="error-message">
+              {{ objErrorMessage.CellphoneError }}
+            </div>
+          </div>
+        </div>
+      </div>
+<div class="formgroup">
+  <button type="button" class="btn btn-change-password" (click)="changePassword()">
+    <i class="fas fa-key"></i>
+    Change Password
+    </button>
+</div>
+
+      
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-save" [disabled]="isImageUploading">
+          <i class="fas" [class.fa-save]="!isImageUploading" [class.fa-spinner]="isImageUploading" [class.fa-spin]="isImageUploading"></i>
+          <span *ngIf="!isImageUploading">Save Changes</span>
+          <span *ngIf="isImageUploading">Uploading...</span>
+        </button>
+        <button type="button" class="btn btn-cancel" (click)="cancel()" [disabled]="isImageUploading">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<app-notification-modal></app-notification-modal>`

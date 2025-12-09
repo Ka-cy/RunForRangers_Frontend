@@ -1,0 +1,305 @@
+<div class="container">
+  <!-- Sidebar -->
+  <app-nav-bar-admin></app-nav-bar-admin>
+
+  <!-- Main Content -->
+  <main class="main">
+    <header class="header">
+      <div class="header-left">
+        <div class="page-title">
+          <h1>
+            <i class="fas fa-boxes"></i>
+            Inventory Management
+          </h1>
+          <p class="page-subtitle">View and manage inventory</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="user-info" (click)="toggleProfileMenu()">
+          <div class="user-details">
+            <h4>{{ getCurrentUserName() }}</h4>
+            <span class="role">{{ getCurrentUserRole() }}</span>
+          </div>
+          <div class="user-avatar">{{ getCurrentUserInitials() }}</div>
+          <i class="fas fa-chevron-down dropdown-arrow" [class.rotated]="showProfileMenu"></i>
+
+          <div class="user-dropdown" [class.show]="showProfileMenu">
+            <a class="dropdown-item">
+              <i class="fas fa-user"></i>
+              <span>My Profile</span>
+            </a>
+            <a class="dropdown-item">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </a>
+            <a (click)="logout()" class="dropdown-item logout">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading" class="loading-overlay">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Filter Section -->
+      <div class="filter-section">
+        <div class="filter-header">
+          <h3>🔍 Filter & Search</h3>
+          <div class="filter-actions">
+            <button class="btn btn-outline" (click)="clearFilters()">Clear Filters</button>
+            <button class="btn btn-success" (click)="exportToExcel()" title="Export inventory to Excel">
+              <i class="fas fa-file-excel"></i> Export Excel
+            </button>
+            <button class="btn btn-info" (click)="exportToCSV()" title="Export inventory to CSV">
+              <i class="fas fa-file-csv"></i> Export CSV
+            </button>
+            <button class="btn btn-primary" (click)="toggleReport()">
+              {{ showReport ? 'Hide Report' : 'Show Report' }}
+            </button>
+          </div>
+        </div>
+        
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label>Search</label>
+            <input type="text" 
+                   [(ngModel)]="searchTerm" 
+                   (input)="onSearchChange()" 
+                   placeholder="Search products, colors, sizes..."
+                   class="form-control">
+          </div>
+          
+          <div class="filter-group">
+            <label>Product</label>
+            <select [(ngModel)]="selectedProduct" (change)="onFilterChange()" class="form-control">
+              <option value="0">All Products</option>
+              <option *ngFor="let product of productList" [value]="product.productId">
+                {{ product.productName }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label>Color</label>
+            <select [(ngModel)]="selectedColor" (change)="onFilterChange()" class="form-control color-select">
+              <option value="0">All Colors</option>
+              <option *ngFor="let color of colourList" [value]="color.productColorId">
+                {{ color.colorName }}
+              </option>
+            </select>
+            <!-- Color preview text -->
+            <div class="color-options-preview" *ngIf="selectedColor && selectedColor !== '0'">
+              <span class="selected-color-indicator">🎨</span>
+              <span class="selected-color-text">
+                {{ getSelectedColorName() }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="filter-group">
+            <label>Size</label>
+            <select [(ngModel)]="selectedSize" (change)="onFilterChange()" class="form-control">
+              <option value="0">All Sizes</option>
+              <option *ngFor="let size of sizeList" [value]="size.productSizeId">
+                {{ size.sizeName }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label>Min Quantity</label>
+            <input type="number" 
+                   [(ngModel)]="minQuantity" 
+                   (input)="onFilterChange()" 
+                   min="0" 
+                   class="form-control">
+          </div>
+          
+          <div class="filter-group">
+            <label>Max Quantity</label>
+            <input type="number" 
+                   [(ngModel)]="maxQuantity" 
+                   (input)="onFilterChange()" 
+                   min="0" 
+                   class="form-control">
+          </div>
+          
+          <div class="filter-group">
+            <label class="checkbox-label">
+              <input type="checkbox" 
+                     [(ngModel)]="showLowStock" 
+                     (change)="onFilterChange()">
+              Show Low Stock Only (≤{{ lowStockThreshold }})
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Section -->
+      <div *ngIf="showReport" class="report-section">
+        <div class="report-header">
+          <h3>📊 Inventory On-Hand Report</h3>
+          <button class="btn btn-success" (click)="exportReport()">Export Report</button>
+        </div>
+        
+        <div class="report-grid">
+          <div class="report-card">
+            <h4>Total Items</h4>
+            <p class="report-number">{{ reportData.totalItems }}</p>
+          </div>
+          <div class="report-card">
+            <h4>Total Quantity</h4>
+            <p class="report-number">{{ reportData.totalQuantity }}</p>
+          </div>
+          <div class="report-card alert">
+            <h4>Low Stock</h4>
+            <p class="report-number">{{ reportData.lowStockCount }}</p>
+          </div>
+          <div class="report-card danger">
+            <h4>Out of Stock</h4>
+            <p class="report-number">{{ reportData.outOfStockCount }}</p>
+          </div>
+        </div>
+        
+        <div class="report-details">
+          <div class="report-table">
+            <h4>Product Summary</h4>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Variants</th>
+                  <th>Total Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of reportData.productSummary">
+                  <td>{{ item.productName }}</td>
+                  <td>{{ item.variants }}</td>
+                  <td>{{ item.totalQuantity }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="report-table" *ngIf="reportData.lowStockItems?.length > 0">
+            <h4>Low Stock Items</h4>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Color</th>
+                  <th>Size</th>
+                  <th>Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of reportData.lowStockItems" class="low-stock-row">
+                  <td>{{ item.productName }}</td>
+                  <td>{{ item.colorName }}</td>
+                  <td>{{ item.sizeName }}</td>
+                  <td>{{ item.quantity }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inventory Table -->
+      <div class="inventory-table">
+        <div class="employees-header">
+          <h2>📦 Inventory List ({{ filteredInventoryList.length }} items)</h2>
+          <div class="header-buttons">
+           
+            
+            <!-- Bulk Operations -->
+            <div class="bulk-operations">
+              <span class="bulk-label">Inventory Operations:</span>
+                <!-- Add Inventory Button -->
+            <button class="create-button" (click)="navigateToAddInventory()">
+              <span class="btn-icon">➕</span> Add Inventory
+            </button>
+              <button class="operation-btn bulk-receive-stock" (click)="navigateToBulkReceiveStock()">
+                <span class="btn-icon">📦</span> Receive
+              </button>
+              <button class="operation-btn bulk-stock-take" (click)="navigateToBulkStockTake()">
+                <span class="btn-icon">📊</span>  Stock Take
+              </button>
+              <button class="operation-btn bulk-write-off" (click)="navigateToBulkWriteOff()">
+                <span class="btn-icon">🗑️</span>  Write Off
+              </button>
+            </div>
+          </div>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product</th>
+              <th>Colour</th>
+              <th>Size</th>
+              <th>Description</th>
+              <th>Quantity</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of filteredInventoryList" 
+                [class.low-stock]="(item.quantity || 0) <= lowStockThreshold && (item.quantity || 0) > 0"
+                [class.out-of-stock]="(item.quantity || 0) === 0">
+              <td class="image-cell">
+                <app-dynamic-image 
+                  [src]="item.productImage || ''"
+                  [alt]="item.productName || 'Product'"
+                  [productType]="item.productType || ''"
+                  [productCategory]="item.productCategory || ''"
+                  size="small"
+                  [showLoader]="true"
+                  class="product-image">
+                </app-dynamic-image>
+              </td>
+              <td>{{ item.productName }}</td>
+              <td>
+                <div class="color-display">
+                  <span class="color-name">{{ item.colorName }}</span>
+                </div>
+              </td>
+              <td>{{ item.sizeName }}</td>
+              <td>{{ item.description }}</td>
+              <td>
+                <span class="quantity-badge" 
+                      [class.low]="(item.quantity || 0) <= lowStockThreshold && (item.quantity || 0) > 0"
+                      [class.out]="(item.quantity || 0) === 0">
+                  {{ item.quantity }}
+                </span>
+              </td>
+              <td>
+                <span *ngIf="(item.quantity || 0) === 0" class="status-badge out-of-stock">Out of Stock</span>
+                <span *ngIf="(item.quantity || 0) > 0 && (item.quantity || 0) <= lowStockThreshold" class="status-badge low-stock">Low Stock</span>
+                <span *ngIf="(item.quantity || 0) > lowStockThreshold" class="status-badge in-stock">In Stock</span>
+              </td>
+            </tr>
+            <tr *ngIf="filteredInventoryList.length === 0">
+              <td colspan="7" class="no-data">
+                <div class="empty-state">
+                  <p>{{ inventoryList.length === 0 ? 'No inventory items found.' : 'No items match your current filters.' }}</p>
+                  <button *ngIf="inventoryList.length > 0" class="btn btn-outline" (click)="clearFilters()">Clear Filters</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<app-notification-modal></app-notification-modal>

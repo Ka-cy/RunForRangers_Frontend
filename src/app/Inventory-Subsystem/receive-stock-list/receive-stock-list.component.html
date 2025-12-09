@@ -1,0 +1,178 @@
+<main class="receive-stock-page">
+  <app-nav-bar-admin></app-nav-bar-admin>
+  
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <h1><i class="fas fa-plus-circle"></i> Receive Stock</h1>
+        <p class="subtitle">Add inventory items - Enter quantities to receive (0 = no receipt)</p>
+      </div>
+      
+      <div class="actions">
+        <button class="btn-back" (click)="goBack()">
+          <i class="fas fa-arrow-left"></i> Back to Inventory
+        </button>
+        
+        <div class="summary" *ngIf="getReceiveItemsCount() > 0">
+          <span class="changes-badge">
+            {{ getReceiveItemsCount() }} items • {{ getTotalReceiveQuantity() }} units to receive
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="filter-section">
+      <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (input)="filterInventory()"
+          placeholder="Search by product name, description, color, or size..."
+          class="search-input">
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading inventory data...</p>
+    </div>
+
+    <!-- Receive Stock Table -->
+    <div *ngIf="!isLoading" class="inventory-table-container">
+      <table class="inventory-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Product</th>
+            <th>Color</th>
+            <th>Size</th>
+            <th>Current Qty</th>
+            <th>Receive Qty</th>
+            <th>New Total</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filteredInventoryList; trackBy: trackByInventoryId" 
+              [class.has-changes]="item.hasChanges"
+              [class.low-stock]="item.quantity <= 5">
+            
+            <!-- Product Image -->
+            <td class="image-cell">
+              <img [src]="item.productImage || item.imageUrl || '/assets/Images/no-image.png'" 
+                   [alt]="item.productName || 'Product Image'"
+                   class="product-image">
+            </td>
+
+            <!-- Product Info -->
+            <td class="product-info">
+              <div class="product-name">{{ item.productName }}</div>
+              <div class="product-description">{{ item.description }}</div>
+            </td>
+
+            <!-- Color -->
+            <td class="color-cell">
+              <span class="color-badge">{{ item.colorName }}</span>
+            </td>
+
+            <!-- Size -->
+            <td class="size-cell">
+              <span class="size-badge">{{ item.sizeName }}</span>
+            </td>
+
+            <!-- Current Quantity -->
+            <td class="quantity-cell">
+              <span class="current-quantity" [class.low-stock-qty]="item.quantity <= 5">
+                {{ item.quantity }}
+                <i *ngIf="item.quantity <= 5" class="fas fa-exclamation-triangle low-stock-icon" title="Low Stock"></i>
+              </span>
+            </td>
+
+            <!-- Receive Quantity Input -->
+            <td class="receive-quantity-cell">
+              <div class="quantity-input-container">
+                <input 
+                  type="number" 
+                  [(ngModel)]="item.receiveQuantity"
+                  (input)="onReceiveQuantityChange(item)"
+                  min="0"
+                  class="quantity-input"
+                  [class.has-value]="item.receiveQuantity > 0"
+                  placeholder="0">
+                <span class="input-help">Units to add</span>
+              </div>
+            </td>
+
+            <!-- New Total Quantity -->
+            <td class="new-total-cell">
+              <span class="new-total" [class.will-change]="item.hasChanges">
+                {{ getNewTotalQuantity(item) }}
+                <span *ngIf="item.hasChanges" class="change-indicator">
+                  (+{{ item.receiveQuantity }})
+                </span>
+              </span>
+            </td>
+
+            <!-- Status -->
+            <td class="status-cell">
+              <span *ngIf="!item.hasChanges" class="status-unchanged">No Receipt</span>
+              <span *ngIf="item.hasChanges" class="status-receive">
+                <i class="fas fa-plus-circle"></i> Will Receive
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredInventoryList.length === 0" class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h3>No inventory items found</h3>
+        <p>Try adjusting your search criteria</p>
+      </div>
+    </div>
+
+    <!-- Receive Stock Summary -->
+    <div *ngIf="!isLoading && getReceiveItemsCount() > 0" class="receive-summary">
+      <div class="summary-card">
+        <h3><i class="fas fa-clipboard-list"></i> Stock Receipt Summary</h3>
+        <div class="summary-stats">
+          <div class="stat">
+            <span class="stat-label">Items to Receive:</span>
+            <span class="stat-value">{{ getReceiveItemsCount() }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Total Units:</span>
+            <span class="stat-value">{{ getTotalReceiveQuantity() }}</span>
+          </div>
+        </div>
+        
+        <!-- Low Stock Items Priority -->
+        <div *ngIf="hasLowStockWithChanges()" class="priority-notice">
+          <i class="fas fa-star"></i>
+          <span>Good! You're restocking low inventory items.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div *ngIf="!isLoading" class="action-buttons">
+      <button 
+        class="btn-reset" 
+        (click)="resetChanges()"
+        [disabled]="getReceiveItemsCount() === 0">
+        <i class="fas fa-undo"></i> Reset All Changes
+      </button>
+      
+      <button 
+        class="btn-submit" 
+        (click)="submitReceiveStock()"
+        [disabled]="getReceiveItemsCount() === 0">
+        <i class="fas fa-truck"></i> Receive Stock ({{ getTotalReceiveQuantity() }} units)
+      </button>
+    </div>
+  </div>
+</main>

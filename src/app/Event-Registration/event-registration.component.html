@@ -1,0 +1,26 @@
+<div class="event-registration-header">
+  <button class="btn-warning back-btn" (click)="onBackToEvents()">Back to Events</button>
+  <button class="btn-warning export-btn" (click)="exportToExcel()">Export to Excel</button>
+</div>
+<div class="event-registration-table-container">
+  <table class="event-registration-table">
+    <thead>
+      <tr>
+        <th>Event Name</th>
+        <th>First Name</th>
+        <th>Surname</th>
+        <th>Cellphone</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let reg of eventRegistrations">
+        <td>{{ reg.eventName }}</td>
+        <td>{{ reg.firstName }}</td>
+        <td>{{ reg.surname }}</td>
+        <td>{{ reg.cellphone }}</td>
+        <td>{{ reg.email }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

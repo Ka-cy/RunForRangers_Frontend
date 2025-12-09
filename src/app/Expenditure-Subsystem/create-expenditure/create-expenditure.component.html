@@ -1,0 +1,156 @@
+<app-nav-bar-admin></app-nav-bar-admin>
+<app-notification-modal></app-notification-modal>
+
+<!-- Spinner Overlay -->
+<div *ngIf="isLoading" class="spinner-overlay">
+  <div class="spinner-container">
+    <div class="spinner"></div>
+    <div class="spinner-text">Creating expenditure...</div>
+  </div>
+</div>
+
+<div class="container">
+  <h2>New Expenditure</h2>
+  <div class="card">
+    <h5>Expenditure Details:</h5>
+
+    <form (ngSubmit)="onSubmit()" #expenditureForm="ngForm">
+      <div class="form-group">
+        <label for="purpose">Purpose:</label>
+        <input
+          type="text"
+          id="purpose"
+          name="Purpose"
+          class="form-control"
+          [(ngModel)]="expenditure.purpose"
+          required
+          #purpose="ngModel"
+          [class.ng-invalid]="purpose.invalid || (expenditure.purpose && expenditure.purpose.length > 50)"
+          [class.ng-touched]="purpose.touched"
+          (input)="validatePurpose()"
+        />
+        <div *ngIf="(purpose.invalid && purpose.touched) || (expenditure.purpose && expenditure.purpose.length > 50)" class="error">
+          <span *ngIf="purpose.errors?.['required'] && purpose.touched">Purpose is required.</span>
+          <span *ngIf="expenditure.purpose && expenditure.purpose.length > 50">Purpose must not exceed 50 characters. Current: {{ expenditure.purpose.length }}/50</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea
+          id="description"
+          name="Description"
+          class="form-control"
+          rows="4"
+          [(ngModel)]="expenditure.description"
+          required
+          #description="ngModel"
+          [class.ng-invalid]="description.invalid || (expenditure.description && expenditure.description.length > 200)"
+          [class.ng-touched]="description.touched"
+          (input)="validateDescription()"
+        ></textarea>
+        <div *ngIf="(description.invalid && description.touched) || (expenditure.description && expenditure.description.length > 200)" class="error">
+          <span *ngIf="description.errors?.['required'] && description.touched">Description is required.</span>
+          <span *ngIf="expenditure.description && expenditure.description.length > 200">Description must not exceed 200 characters. Current: {{ expenditure.description.length }}/200</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="amount">Amount:</label>
+        <input
+          type="number"
+          id="amount"
+          name="Amount"
+          class="form-control"
+          [(ngModel)]="expenditure.amount"
+          required
+          min="0.01"
+          step="0.01"
+          #amount="ngModel"
+          [class.ng-invalid]="amount.invalid"
+          [class.ng-touched]="amount.touched"
+        />
+        <div *ngIf="amount.invalid && amount.touched" class="error">
+          Amount is required and must be a positive number.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfCreation">Date Created:</label>
+        <input
+          type="date"
+          id="dateOfCreation"
+          name="DateOfCreation"
+          class="form-control"
+          [(ngModel)]="expenditure.dateOfCreation"
+          required
+          #dateOfCreation="ngModel"
+          [attr.max]="today"
+        />
+        <div *ngIf="dateOfCreation.invalid && dateOfCreation.touched" class="error">
+          Date is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="receipt">Receipt (PDF or Image):</label>
+        <input
+          type="file"
+          id="receipt"
+          name="ReceiptImage"
+          class="form-control"
+          (change)="onFileSelected($event)"
+          accept="image/jpeg,image/jpg,image/png,application/pdf"
+        />
+        <small class="form-text text-muted">
+          Accepted formats: JPEG, PNG, PDF (Max size: 5MB)
+        </small>
+        
+        <!-- Receipt Preview -->
+        <div *ngIf="expenditure.receiptImage" class="mt-3">
+          <!-- Image Preview -->
+          <div *ngIf="isImage()" class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span><strong>Receipt Preview:</strong></span>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeReceipt()">
+                Remove
+              </button>
+            </div>
+            <div class="card-body text-center">
+              <img [src]="expenditure.receiptImage" alt="Receipt Preview" 
+                   style="max-width: 100%; max-height: 300px; border: 1px solid #ddd;" />
+            </div>
+          </div>
+          
+          <!-- PDF Preview -->
+          <div *ngIf="isPDF()" class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span><strong>PDF Receipt Uploaded:</strong></span>
+              <div>
+                <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="downloadPDF()">
+                  Download PDF
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeReceipt()">
+                  Remove
+                </button>
+              </div>
+            </div>
+            <div class="card-body text-center">
+              <i class="fas fa-file-pdf fa-3x text-danger"></i>
+              <p class="mt-2">PDF receipt uploaded successfully</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <div class="form-actions-bottom-right">
+          <button type="submit" class="btn btn-primary" [disabled]="!expenditureForm.form.valid">
+            Save
+          </button>
+          <button type="button" (click)="onCancel()" class="btn btn-secondary">
+            Cancel
+          </button>
+        </div>
+    </form>
+  </div>
+</div>

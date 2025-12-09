@@ -1,0 +1,322 @@
+<div class="container">
+  <!-- Sidebar -->
+  <app-nav-bar-admin></app-nav-bar-admin>
+
+  <!-- Main Content -->
+  <main class="main">
+    <header class="header">
+      <div class="header-left">
+        <div class="page-title">
+          <h1>
+            <i class="fas fa-user-shield"></i>
+            Admin Home
+          </h1>
+          <p class="page-subtitle">Manage admins, users and audit logs</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="user-info" (click)="toggleUserDropdown()">
+          <div class="user-details">
+            <h4>{{ adminData?.firstName }} {{ adminData?.surname }}</h4>
+            <span class="role">{{ adminData?.roleId === 4 ? 'Administrator' : 'Admin' }}</span>
+          </div>
+          <div class="user-avatar">
+            {{ getCurrentUserInitials() }}
+          </div>
+          <i class="fas fa-chevron-down dropdown-arrow" [class.rotated]="showUserDropdown"></i>
+
+          <div class="user-dropdown" [class.show]="showUserDropdown">
+            <a (click)="navigateToUpdateAdmin()" class="dropdown-item">
+              <i class="fas fa-user-edit"></i>
+              <span>Edit Profile</span>
+            </a>
+            <a (click)="logout()" class="dropdown-item logout">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="row">
+        <div class="col"><h1>Admin Management</h1></div>
+        <div class="col text-right" *ngIf="headAdmin">
+          <button (click)="navigateToCreateAdmin()" class="btn-success">Create Admin</button>
+        </div>
+      </div>
+
+      <!-- Filter Buttons -->
+      <div class="filters">
+        <button (click)="DisplayAdmins()" class="filter-btn">
+          Admin ({{ adminlist.length }})
+        </button>
+        <button (click)="DisplayUsers()" class="filter-btn">
+          User ({{ userlist.length }})
+        </button>
+        <button (click)="DisplayLogin()" class="filter-btn" *ngIf="headAdmin">
+          Audit Log ({{ auditLog.length }})
+        </button>
+      </div>
+
+      <!-- User Table -->
+      <div *ngIf="currentView === 'user'">
+        <div class="modern-search-wrapper">
+          <i class="fas fa-search search-icon-modern"></i>
+          <input 
+            type="text" 
+            placeholder="Search users by name, email or phone..." 
+            class="searchUser modern-search-input" 
+          />
+          <button (click)="SearchUser()" class="modern-search-btn">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+        <br>
+
+        <table class="data-table user-table" *ngIf="currentView === 'user'">
+          <thead>
+            <tr>
+              <th>Counter</th>
+              <th>Name</th>
+              <th>Surname</th>
+              <th>Cell Number</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of userlist; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ user.firstName }}</td>
+              <td>{{ user.surname }}</td>
+              <td>{{ user.cellphone }}</td>
+              <td>{{ user.email }}</td>
+            </tr>
+            <tr *ngIf="userlist.length === 0" class="no-data-row">
+              <td colspan="6">
+                <div class="no-data-message">
+                  <span>No userlist found</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Admin Table -->
+      <div *ngIf="currentView === 'admin'">
+        <div class="modern-search-wrapper">
+          <i class="fas fa-search search-icon-modern"></i>
+          <input 
+            type="text" 
+            placeholder="Search admins by name, email or phone..." 
+            class="searchAdmin modern-search-input" 
+          />
+          <button (click)="SearchAdmin()" class="modern-search-btn">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+        <br>
+
+        <table class="data-table admin-table" *ngIf="currentView === 'admin'">
+          <thead>
+            <tr>
+              <th>Counter</th>
+              <th>Name</th>
+              <th>Surname</th>
+              <th>Cell Number</th>
+              <th>Email</th>
+              <th *ngIf="headAdmin">Actions</th>
+              <th *ngIf="headAdmin">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let admin of adminlist; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ admin.firstName }}</td>
+              <td>{{ admin.surname }}</td>
+              <td>{{ admin.cellphone }}</td>
+              <td>{{ admin.email }}</td>
+              <td *ngIf="headAdmin && admin.email != adminData.email">
+                <button (click)="navigateToRoleUpdate(admin)" class="edit-btn" title="Edit Admin">Edit Role</button>
+              </td>
+              <td *ngIf="headAdmin && admin.email != adminData.email">
+                <button (click)="openDeleteDialog(admin.email,adminData.userId,admin.firstName)" class="delete-btn" title="Delete Admin">🗑️</button>
+              </td>
+            </tr>
+            <tr *ngIf="adminlist.length === 0" class="no-data-row">
+              <td colspan="6">
+                <div class="no-data-message">
+                  <span>No admins found</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Audit Log Table -->
+      <div class="audit-controls-row" *ngIf="currentView === 'login' && headAdmin">
+        <form class="date-filter-form">
+          <select class="date-filter" (change)="onDateFilterChange($event)">
+            <option value="today">Today</option>
+            <option value="last7days">Last 7 Days</option>
+            <option value="last30days">Last 30 Days</option>
+            <option value="year">This Year</option>
+          </select>
+        </form>
+        <br>
+
+        <div class="modern-search-wrapper">
+          <i class="fas fa-search search-icon-modern"></i>
+          <input 
+            type="text" 
+            placeholder="Search audit logs..." 
+            class="search modern-search-input" 
+          />
+          <button (click)="Search()" class="modern-search-btn">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+      <br>
+
+      <table class="data-table login-table" *ngIf="currentView === 'login' && headAdmin">
+        <thead>
+          <tr>
+            <td>Counter</td>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Action</th>
+            <th>Time & Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of auditLog; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ record.firstName }}</td>
+            <td>{{ record.surname }}</td>
+            <td>{{ record.description }}</td>
+            <td>{{ record.transactionTime | date: 'short' }}</td>
+          </tr>
+          <tr *ngIf="auditLog.length === 0" class="no-data-row">
+            <td colspan="6">
+              <div class="no-data-message">
+                <span>No login found</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Search Table Audit Log -->
+      <table class="data-table admin-search" *ngIf="currentView === 'search'">
+        <thead>
+          <tr>
+            <th>Counter</th>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Actions</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sr of searchlist; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ sr.firstName }}</td>
+            <td>{{ sr.surname }}</td>
+            <td>{{ sr.description }}</td>
+            <td>{{ sr.transactionTime }}</td>
+          </tr>
+          <tr *ngIf="searchlist.length === 0" class="no-data-row">
+            <td colspan="6">
+              <div class="no-data-message">
+                <span>No record found</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Search Table User -->
+      <table class="data-table admin-search" *ngIf="currentView === 'searchUser'">
+        <thead>
+          <tr>
+            <th>Counter</th>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Email</th>
+            <th>CellPhone</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sr of searchlist; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ sr.firstName }}</td>
+            <td>{{ sr.surname }}</td>
+            <td>{{ sr.email }}</td>
+            <td>{{ sr.cellphone }}</td>
+          </tr>
+          <tr *ngIf="searchlist.length === 0" class="no-data-row">
+            <td colspan="6">
+              <div class="no-data-message">
+                <span>No record found</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Search Table Admin -->
+      <table class="data-table admin-search" *ngIf="currentView === 'searchAdmin'">
+        <thead>
+          <tr>
+            <th>Counter</th>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Cell Number</th>
+            <th>Email</th>
+            <th *ngIf="headAdmin">Actions</th>
+            <th *ngIf="headAdmin">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sr of searchlist; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ sr.firstName }}</td>
+            <td>{{ sr.surname }}</td>
+            <td>{{ sr.cellphone }}</td>
+            <td>{{ sr.email }}</td>
+            <td *ngIf="headAdmin && sr.email != adminData.email">
+              <button (click)="navigateToRoleUpdate(sr)" class="edit-btn" title="Edit Admin">Edit Role</button>
+            </td>
+            <td *ngIf="headAdmin && sr.email != adminData.email">
+              <button (click)="openDeleteDialog(sr.email,adminData.userId,sr.firstName)" class="delete-btn" title="Delete Admin">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="searchlist.length === 0" class="no-data-row">
+            <td colspan="6">
+              <div class="no-data-message">
+                <span>No record found</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- Delete Confirmation Dialog -->
+  <div class="confirmation-dialog" *ngIf="isDeleteDialogOpen">
+    <div class="dialog-content">
+      <h3>Confirm Deletion</h3>
+      <p>Are you sure you want to delete {{adminName}}'s account?</p>
+      <div class="dialog-buttons">
+        <button class="btn btn-cancel" (click)="closeDeleteDialog()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

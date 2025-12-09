@@ -1,0 +1,93 @@
+<div class="order-success-container">
+  <div class="success-card">
+    <!-- Success Icon -->
+    <div class="success-icon">
+      <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22,4 12,14.01 9,11.01"/>
+      </svg>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-content">
+      <h1>Thank You for Your Order!</h1>
+      <p class="success-message">
+        Your order has been successfully placed and we're processing it now.
+      </p>
+
+      <!-- Order Details -->
+      <div class="order-details" *ngIf="orderId">
+        <div class="detail-row">
+          <span class="detail-label">Order Number:</span>
+          <span class="detail-value">#{{ orderId }}</span>
+        </div>
+        <div class="detail-row" *ngIf="orderTotal > 0">
+          <span class="detail-label">Total Amount:</span>
+          <span class="detail-value">R{{ orderTotal | number: '1.2-2' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span>
+          <span class="detail-value status-pending">Pending</span>
+        </div>
+      </div>
+
+      <!-- Information Box -->
+      <div class="info-box">
+        <div class="info-icon">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="info-content">
+          <h3>What happens next?</h3>
+          <ul>
+            <li>You'll receive an email confirmation shortly</li>
+            <li>We'll process your order within 1-2 business days</li>
+            <li>You'll be notified when your order ships</li>
+            <li>Track your order status in your account</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Payment Information -->
+      <div class="payment-info">
+        <div class="payment-icon">
+          <i class="fas fa-credit-card"></i>
+        </div>
+        <div class="payment-content">
+          <h3>Payment</h3>
+          <p>Since we don't have a payment gateway integrated yet, your order is marked as pending payment. We'll contact you shortly with payment instructions.</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="primary-btn" (click)="continueShoppping()">
+          <i class="fas fa-shopping-bag"></i>
+          Continue Shopping
+        </button>
+        <button class="secondary-btn" (click)="viewOrderDetails()" *ngIf="orderId">
+          <i class="fas fa-receipt"></i>
+          View Order Details
+        </button>
+        <button class="tertiary-btn" (click)="goToHome()">
+          <i class="fas fa-home"></i>
+          Go to Home
+        </button>
+      </div>
+
+      <!-- Auto Redirect Notice -->
+      <div class="redirect-notice">
+        <i class="fas fa-clock"></i>
+        <span>Redirecting to shop in {{ countdown }} seconds...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background Animation -->
+  <div class="success-animation">
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+  </div>
+</div>

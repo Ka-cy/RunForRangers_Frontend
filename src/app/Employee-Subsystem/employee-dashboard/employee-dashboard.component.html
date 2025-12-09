@@ -1,0 +1,152 @@
+<!-- Loading Spinner Overlay -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner"></div>
+</div>
+
+<!-- Sidebar Navigation -->
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<!-- Main Content Area -->
+<div class="main-content">
+  <!-- Professional Top Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="page-title">
+        <h1>Employee Management</h1>
+        <p class="page-subtitle">Manage and monitor all registered employees</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Search Container -->
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          type="text"
+          class="search-input"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchInput(searchTerm)"
+          placeholder="Search employees..."
+        />
+        <button *ngIf="searchTerm" (click)="clearSearch()" class="clear-search-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- User Info -->
+      <div class="user-info" (click)="toggleUserDropdown()">
+        <div class="user-details">
+          <h4>{{ getCurrentUserName() }}</h4>
+          <span class="role">{{ getCurrentUserRole() }}</span>
+        </div>
+        <div class="user-avatar">
+          {{ getCurrentUserInitials() }}
+        </div>
+        <i class="fas fa-chevron-down dropdown-arrow" [class.rotated]="showUserDropdown"></i>
+
+        <!-- User Dropdown -->
+        <div class="user-dropdown" [class.show]="showUserDropdown">
+          <a (click)="editProfile()" class="dropdown-item">
+            <i class="fas fa-user-edit"></i>
+            <span>Edit Profile</span>
+          </a>
+          <a (click)="viewSettings()" class="dropdown-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a (click)="logout()" class="dropdown-item logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content Container -->
+  <div class="content-container">
+    <!-- Top Actions Bar -->
+    <div class="actions-bar">
+      <div class="actions-left">
+        <h2 class="section-title">
+          <i class="fas fa-users"></i>
+          Employees ({{ employees.length }})
+        </h2>
+      </div>
+      <div class="actions-right">
+        <button class="btn-primary" [routerLink]="['/employees/add']">
+          <i class="fas fa-plus"></i>
+          Add New Employee
+        </button>
+      </div>
+    </div>
+
+    <!-- Employee Cards Grid -->
+    <div class="employees-grid">
+      <div class="employee-card" *ngFor="let employee of employees">
+        <!-- Employee Image Section -->
+        <div class="employee-image-section">
+          <div class="employee-image">
+            <img
+              [src]="getImageUrl(employee.employeeImage || '')"
+              (error)="handleImageError($event)"
+              alt="Employee Image"
+              class="employee-img"
+            />
+          </div>
+          <div class="employee-status">
+            <span class="status-badge active">Active</span>
+          </div>
+        </div>
+
+        <!-- Employee Info Section -->
+        <div class="employee-info">
+          <h3 class="employee-name">{{ employee.firstName }} {{ employee.lastName }}</h3>
+          
+          <div class="employee-details">
+            <div class="detail-item">
+              <i class="fas fa-envelope"></i>
+              <span class="detail-label">Email:</span>
+              <span class="detail-value">{{ employee.email }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <i class="fas fa-phone"></i>
+              <span class="detail-label">Phone:</span>
+              <span class="detail-value">{{ employee.cellPhone }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Actions -->
+        <div class="employee-actions">
+          <button class="btn-secondary" (click)="editEmployee(employee.employeeId!)">
+            <i class="fas fa-edit"></i>
+            Edit
+          </button>
+          <button class="btn-danger" (click)="deleteEmployee(employee.employeeId!)">
+            <i class="fas fa-trash"></i>
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="employees.length === 0 && !isLoading">
+        <div class="empty-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h3>No employees found</h3>
+        <p>Start building your team by adding your first employee.</p>
+        <button class="btn-primary" [routerLink]="['/employees/add']">
+          <i class="fas fa-plus"></i>
+          Add First Employee
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Modal -->
+<app-notification-modal></app-notification-modal>

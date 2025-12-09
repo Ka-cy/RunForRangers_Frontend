@@ -1,0 +1,467 @@
+<!-- Admin Dashboard -->
+<app-nav-bar-admin></app-nav-bar-admin>
+
+<div class="admin-layout">
+  <div class="dashboard-container container-fluid w-100">
+  <!-- Professional Top Header (Employee-style, without search) -->
+  <header class="header">
+    <div class="header-left">
+      <div class="page-title">
+        <h1>
+          <i class="fas fa-tachometer-alt" style="color: #f59e0b; margin-right: 3px;"></i>
+          Admin Dashboard
+        </h1>
+        <p class="page-subtitle">Overview of system analytics and quick actions</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Refresh Data Button for Testing -->
+      <button 
+        class="btn btn-outline-primary btn-sm me-2" 
+        (click)="loadDashboardData()"
+        [disabled]="isLoading"
+        title="Refresh dashboard data from API">
+        <i class="fas fa-sync-alt" [class.fa-spin]="isLoading"></i>
+        {{ isLoading ? 'Loading...' : 'Refresh Data' }}
+      </button>
+      
+      <!-- Keep existing action buttons in header actions area -->
+      <!-- User Info (match employee header style) -->
+      <div class="user-info">
+        <div class="user-details" (click)="toggleUserDropdown()">
+          <h4>{{ getCurrentUserName() }}</h4>
+          <span class="role">{{ getCurrentUserRole() }}</span>
+        </div>
+        <div class="user-avatar" (click)="toggleUserDropdown()">{{ getCurrentUserInitials() }}</div>
+        <i class="fas fa-chevron-down dropdown-arrow" [class.rotated]="showUserDropdown" (click)="toggleUserDropdown()"></i>
+
+        <div class="user-dropdown" [class.show]="showUserDropdown">
+          <!-- Move header action buttons into dropdown -->
+          <div class="dropdown-actions">
+            <button class="dropdown-btn" (click)="refreshAndClose()" [disabled]="isLoading">
+              <i class="fas fa-sync-alt"></i>
+              <span>{{ isLoading ? 'Loading...' : 'Refresh' }}</span>
+            </button>
+            <button class="dropdown-btn" (click)="openManagerialReport()">
+              <i class="fas fa-chart-line"></i>
+              <span>Managerial Report</span>
+            </button>
+            <button class="dropdown-btn" (click)="openSettingsAndClose()">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </button>
+          </div>
+
+          <div class="dropdown-sep"></div>
+
+          <a (click)="navigateToUsers()" class="dropdown-item">
+            <i class="fas fa-user"></i>
+            <span>Users</span>
+          </a>
+          <a (click)="navigateToOrders()" class="dropdown-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Orders</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a (click)="logout()" class="dropdown-item logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading && !error" class="dashboard-content">
+    
+    <!-- Analytics Cards -->
+    <div class="analytics-grid">
+      <div class="analytics-card primary">
+        <div class="card-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="card-content">
+          <h3 class="card-value">{{ analytics.totalUsers | number }}</h3>
+          <p class="card-label">Total Users</p>
+        </div>
+        <div class="card-action">
+          <button class="btn-link" (click)="navigateToUsers()">View Details</button>
+        </div>
+      </div>
+
+      <div class="analytics-card success">
+        <div class="card-icon">
+          <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="card-content">
+          <h3 class="card-value">R{{ analytics.totalSales | number:'1.2-2' }}</h3>
+          <p class="card-label">Total Sales</p>
+        </div>
+        <div class="card-action">
+          <button class="btn-link" (click)="navigateToOrders()">View Orders</button>
+        </div>
+      </div>
+
+      <div class="analytics-card warning">
+        <div class="card-icon">
+          <i class="fas fa-user-tie"></i>
+        </div>
+        <div class="card-content">
+          <h3 class="card-value">{{ analytics.totalEmployees | number }}</h3>
+          <p class="card-label">Total Employees</p>
+        </div>
+        <div class="card-action">
+          <button class="btn-link">Manage Staff</button>
+        </div>
+      </div>
+
+      <div class="analytics-card info">
+        <div class="card-icon">
+          <i class="fas fa-running"></i>
+        </div>
+        <div class="card-content">
+          <h3 class="card-value">{{ analytics.totalRunners | number }}</h3>
+          <p class="card-label">Total Runners</p>
+        </div>
+        <div class="card-action">
+          <button class="btn-link">View Runners</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="row">
+        <!-- Orders Chart -->
+        <div class="col-md-6 mb-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h4>Orders per Month</h4>
+            </div>
+            <div class="chart-container">
+              <div *ngIf="chartsLoading" class="chart-loading">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="sr-only">Loading chart...</span>
+                </div>
+                <p>Loading chart data...</p>
+              </div>
+              <canvas *ngIf="!chartsLoading" id="ordersChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Donations Chart -->
+        <div class="col-md-6 mb-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h4>Donations per Month</h4>
+            </div>
+            <div class="chart-container">
+              <div *ngIf="chartsLoading" class="chart-loading">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="sr-only">Loading chart...</span>
+                </div>
+                <p>Loading chart data...</p>
+              </div>
+              <canvas *ngIf="!chartsLoading" id="donationsChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Users Chart -->
+        <div class="col-md-6 mb-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h4>New Users per Month</h4>
+            </div>
+            <div class="chart-container">
+              <div *ngIf="chartsLoading" class="chart-loading">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="sr-only">Loading chart...</span>
+                </div>
+                <p>Loading chart data...</p>
+              </div>
+              <canvas *ngIf="!chartsLoading" id="usersChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Runners Chart -->
+        <div class="col-md-6 mb-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h4>New Runners Distribution</h4>
+            </div>
+            <div class="chart-container">
+              <div *ngIf="chartsLoading" class="chart-loading">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="sr-only">Loading chart...</span>
+                </div>
+                <p>Loading chart data...</p>
+              </div>
+              <canvas *ngIf="!chartsLoading" id="runnersChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports Section -->
+    <div class="reports-section">
+      <div class="row">
+        <!-- Recent Orders -->
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="report-card h-100">
+            <div class="report-header">
+              <h4>Recent Orders</h4>
+              <span class="badge badge-primary">{{ recentOrders.length }} orders</span>
+            </div>
+            <div class="report-content">
+              <div *ngIf="recentOrders.length === 0" class="no-data">
+                <i class="fas fa-shopping-cart text-muted"></i>
+                <p>No recent orders</p>
+              </div>
+              <div *ngIf="recentOrders.length > 0" class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Customer</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let order of recentOrders.slice(0, 5)">
+                      <td><small>#{{ order.orderId }}</small></td>
+                      <td>
+                        <small>{{ order.user?.firstName }} {{ order.user?.surname }}</small>
+                      </td>
+                      <td><small>R{{ order.totalAmount | number:'1.0-0' }}</small></td>
+                      <td>
+                        <span class="badge badge-sm" 
+                              [ngClass]="{
+                                'badge-success': order.orderStatusName?.toLowerCase().includes('completed'),
+                                'badge-warning': order.orderStatusName?.toLowerCase().includes('processing'),
+                                'badge-info': order.orderStatusName?.toLowerCase().includes('payment'),
+                                'badge-secondary': !order.orderStatusName
+                              }">
+                          <small>{{ order.orderStatusName || 'Unknown' }}</small>
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="text-center mt-2">
+                  <button class="btn btn-sm btn-primary" (click)="navigateToOrders()">
+                    View All Orders
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Deliveries -->
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="report-card h-100">
+            <div class="report-header">
+              <h4>Pending Deliveries</h4>
+              <span class="badge badge-warning">{{ analytics.pendingDeliveries }} pending</span>
+            </div>
+            <div class="report-content">
+              <div *ngIf="pendingDeliveries.length === 0" class="no-data">
+                <i class="fas fa-check-circle text-success"></i>
+                <p>No pending deliveries</p>
+              </div>
+              <div *ngIf="pendingDeliveries.length > 0" class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let delivery of pendingDeliveries.slice(0, 5)">
+                      <td>{{ delivery.deliveryId }}</td>
+                      <td>{{ delivery.deliveryDate | date:'short' }}</td>
+                      <td>
+                        <span class="badge badge-warning">{{ delivery.deliveryStatus }}</span>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary">View</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="text-center mt-2">
+                  <button class="btn btn-sm btn-primary" (click)="navigateToDeliveries()">
+                    View All Deliveries
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Low Stock Inventory -->
+        <div class="col-lg-4 col-md-12 mb-4">
+          <div class="report-card">
+            <div class="report-header">
+              <h4>Low Stock Items</h4>
+              <span class="badge badge-danger">{{ analytics.lowStockItems }} items</span>
+            </div>
+            <div class="report-content">
+              <div *ngIf="lowStockInventory.length === 0" class="no-data">
+                <i class="fas fa-check-circle text-success"></i>
+                <p>All items well stocked</p>
+              </div>
+              <div *ngIf="lowStockInventory.length > 0" class="table-responsive">
+                <table class="table table-sm table-borderless">
+                  <thead>
+                    <tr>
+                      <th style="width: 40%">Product</th>
+                      <th style="width: 20%">Stock</th>
+                      <th style="width: 20%">Min</th>
+                      <th style="width: 20%">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of lowStockInventory.slice(0, 5)">
+                      <td>
+                        <div class="text-truncate" style="max-width: 120px;" [title]="item.productName">
+                          <small>{{ item.productName }}</small>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge badge-danger badge-sm">{{ item.currentStock }}</span>
+                      </td>
+                      <td><small class="text-muted">{{ item.minStock }}</small></td>
+                      <td>
+                        <button class="btn btn-outline-warning btn-xs" style="font-size: 10px; padding: 2px 6px;">
+                          Reorder
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="text-center mt-2">
+                  <button class="btn btn-sm btn-warning" (click)="navigateToInventory()">
+                    Manage Inventory
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div *ngIf="showSettings" class="settings-overlay" (click)="showSettings = false">
+    <div class="settings-modal" (click)="$event.stopPropagation()">
+      <div class="settings-header">
+        <h3>Dashboard Settings</h3>
+        <button class="btn-close" (click)="showSettings = false">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="settings-content">
+        <form (ngSubmit)="saveSettings()">
+          <div class="form-group">
+            <label for="youtubeUrl">YouTube Video URL (for Home Page):</label>
+            <input 
+              type="url" 
+              id="youtubeUrl" 
+              [(ngModel)]="settings.youtubeVideoUrl" 
+              name="youtubeUrl"
+              class="form-control"
+              placeholder="https://www.youtube.com/embed/..."
+              required>
+            <small class="form-text text-muted">
+              Use the embed URL format: https://www.youtube.com/embed/VIDEO_ID
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="companyName">Company Name:</label>
+            <input 
+              type="text" 
+              id="companyName" 
+              [(ngModel)]="settings.companyName" 
+              name="companyName"
+              class="form-control"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label for="contactEmail">Contact Email:</label>
+            <input 
+              type="email" 
+              id="contactEmail" 
+              [(ngModel)]="settings.contactEmail" 
+              name="contactEmail"
+              class="form-control"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label for="welcomeMessage">Welcome Message (Home Page):</label>
+            <textarea 
+              id="welcomeMessage" 
+              [(ngModel)]="settings.welcomeMessage" 
+              name="welcomeMessage"
+              class="form-control"
+              rows="3"
+              required></textarea>
+          </div>
+
+          <div class="settings-actions">
+            <button type="button" class="btn btn-secondary me-2" (click)="showSettings = false">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Save Settings
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Managerial Report Modal -->
+  <div *ngIf="showManagerialReport" class="report-overlay" (click)="closeManagerialReport()">
+    <div class="report-modal" (click)="$event.stopPropagation()">
+      <div class="report-header">
+        <h3>Managerial Report</h3>
+        <button class="btn-close" (click)="closeManagerialReport()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="report-content">
+        <app-managerial-report></app-managerial-report>
+      </div>
+    </div>
+  </div>
+</div>

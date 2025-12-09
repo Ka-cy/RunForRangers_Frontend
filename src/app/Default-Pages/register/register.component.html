@@ -1,0 +1,166 @@
+<div class="container">
+  <!--Nav Bar-->
+  <app-nav-bar-default></app-nav-bar-default>
+  
+  <main>
+    <!-- Loading Overlay -->
+    <div *ngIf="loading" class="loading-overlay">
+      <div class="spinner-container">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="loading-text">Creating your account...</p>
+      </div>
+    </div>
+
+    <div class="register-container" [class.blur-content]="loading">
+      <h1>Register</h1>
+      
+      <form class="register-form" (ngSubmit)="onSubmit()" #registerForm="ngForm">
+        
+        <!-- Profile Image Upload Section -->
+        <div class="form-group">
+          <label [class]="getLabelClass('ProfileImage')" for="profileImage">Profile Picture (Optional)</label>
+          <div class="image-upload-container">
+            <input 
+              type="file" 
+              id="profileImage" 
+              name="profileImage"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              [class]="getInputClass('ProfileImage')"
+              style="display: none;">
+            
+            <div class="image-preview-container" (click)="triggerFileInput()">
+              <div *ngIf="!selectedImagePreview" class="upload-placeholder">
+                <i class="fas fa-camera"></i>
+                <span>Click to upload profile picture</span>
+              </div>
+              <img *ngIf="selectedImagePreview" [src]="selectedImagePreview" alt="Profile preview" class="image-preview">
+            </div>
+            
+            <div class="image-buttons">
+              <button type="button" class="btn-secondary" (click)="triggerFileInput()">
+                {{ selectedImagePreview ? 'Change Picture' : 'Upload Picture' }}
+              </button>
+              
+              <button *ngIf="selectedImagePreview" type="button" class="btn-danger" (click)="removeImage()">
+                Remove Picture
+              </button>
+            </div>
+          </div>
+          
+          
+ 
+
+        </div>
+        
+        <div class="form-group">
+          <label [class]="getLabelClass('Email')" for="email">Email</label>
+          <input 
+            [(ngModel)]="user.email"
+            name="email" 
+            type="email" 
+            id="email" 
+            placeholder="Enter your email"
+            required
+            [class]="getInputClass('Email')">
+          <div *ngIf="errorMessages.Email && isSubmitted" class="invalid-feedback">
+            {{errorMessages.Email}}
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label [class]="getLabelClass('FirstName')" for="firstName">First Name</label>
+          <input 
+            [(ngModel)]="user.firstName"
+            name="firstName" 
+            type="text" 
+            id="firstName" 
+            placeholder="Enter your first name"
+            required
+            [class]="getInputClass('FirstName')">
+          <div *ngIf="errorMessages.FirstName && isSubmitted" class="invalid-feedback">
+            {{errorMessages.FirstName}}
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label [class]="getLabelClass('Surname')" for="surname">Surname</label>
+          <input 
+            [(ngModel)]="user.surname"
+            name="surname" 
+            type="text" 
+            id="surname" 
+            placeholder="Enter your surname"
+            required
+            [class]="getInputClass('Surname')">
+          <div *ngIf="errorMessages.Surname && isSubmitted" class="invalid-feedback">
+            {{errorMessages.Surname}}
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label [class]="getLabelClass('Password')" for="password">Password</label>
+          <input 
+            [(ngModel)]="user.password"
+            name="password" 
+            type="password" 
+            id="password" 
+            placeholder="Enter your password"
+            required
+            [class]="getInputClass('Password')">
+          <div *ngIf="errorMessages.Password && isSubmitted" class="invalid-feedback">
+            {{errorMessages.Password}}
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label [class]="getLabelClass('ConfirmPassword')" for="confirmPassword">Confirm Password</label>
+          <input 
+            [(ngModel)]="user.confirmPassword"
+            name="confirmPassword" 
+            type="password" 
+            id="confirmPassword" 
+            placeholder="Confirm your password"
+            required
+            [class]="getInputClass('ConfirmPassword')">
+          <div *ngIf="errorMessages.ConfirmPassword && isSubmitted" class="invalid-feedback">
+            {{errorMessages.ConfirmPassword}}
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label [class]="getLabelClass('Cellphone')" for="Cellphone">Cell Number</label>
+          <input 
+            [(ngModel)]="user.cellphone"
+            name="Cellphone" 
+            type="text" 
+            id="Cellphone" 
+            placeholder="Enter your cell number"
+            required
+            [class]="getInputClass('Cellphone')">
+          <div *ngIf="errorMessages.Cellphone && isSubmitted" class="invalid-feedback">
+            {{errorMessages.Cellphone}}
+          </div>
+        </div>
+        
+        <div *ngIf="errorMessages.AccountExists" class="alert alert-danger">
+          <span class="error-icon">⚠️</span>
+          {{errorMessages.AccountExists || errorMessages.general}}
+            
+        </div>
+        
+        <button type="submit" class="btn btn-register" [disabled]="loading">
+          {{ loading ? 'Creating Account...' : 'Register' }}
+        </button>
+        
+        <div class="sign-in-link">
+          <a (click)="navigateToSignIn()">Sign in Here</a>
+        </div>
+      </form>
+    </div>
+  </main>
+  
+  
+</div>

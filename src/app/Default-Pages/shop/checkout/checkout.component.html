@@ -1,0 +1,325 @@
+<div class="checkout-container">
+  <div class="checkout-header">
+    <h1>Checkout</h1>
+  </div>
+
+  <div class="progress-steps">
+    <div class="step" [ngClass]="{ 'active': currentStep === 1, 'completed': maxCompletedStep >= 1 }">
+      <div class="step-number">1</div>
+      <div class="step-label">Cart Review</div>
+    </div>
+    <div class="step" [ngClass]="{ 'active': currentStep === 2, 'completed': maxCompletedStep >= 2 }">
+      <div class="step-number">2</div>
+      <div class="step-label">Shipping Address</div>
+    </div>
+    <div class="step" [ngClass]="{ 'active': currentStep === 3, 'completed': maxCompletedStep >= 3 }">
+      <div class="step-number">3</div>
+      <div class="step-label">Billing Address</div>
+    </div>
+    <div class="step" [ngClass]="{ 'active': currentStep === 4, 'completed': maxCompletedStep >= 4 }">
+      <div class="step-number">4</div>
+      <div class="step-label">Payment</div>
+    </div>
+  </div>
+
+  <div class="error-alert" *ngIf="error">
+    <div class="alert alert-danger">
+      <span class="icon-warning"></span>
+      {{ error }}
+      <button class="close-btn" (click)="error = null">×</button>
+    </div>
+  </div>
+
+  <div class="loading-spinner" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Processing...</p>
+  </div>
+
+  <!-- Step 1: Cart Review -->
+  <div class="step-content" *ngIf="currentStep === 1">
+    <h2>Review Your Order</h2>
+    <div class="cart-review" *ngIf="cartItems.length > 0">
+      <div class="cart-items">
+        <div class="cart-item" *ngFor="let item of cartItems">
+          <div class="item-details">
+            <p><strong>Product #{{ item.productId }}</strong></p>
+            <p>Quantity: {{ item.quantity }}</p>
+            <p>Unit Price: R{{ item.price.toFixed(2) }}</p>
+          </div>
+          <div class="item-total">
+            <p>R{{ (item.price * item.quantity).toFixed(2) }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="payment-summary">
+        <div class="summary-card">
+          <p>Subtotal: R{{ subtotal.toFixed(2) }}</p>
+          <p>Delivery Fee: R{{ deliveryFee.toFixed(2) }}</p>
+          <p>VAT (15%): R{{ getTaxAmount().toFixed(2) }}</p>
+          <p><strong>Total: R{{ total.toFixed(2) }}</strong></p>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="cartItems.length === 0 && !isLoading" class="empty-cart">
+      <p>Your cart is empty. <a (click)="navigateToShop()">Continue shopping.</a></p>
+    </div>
+    <div class="step-actions">
+      <button class="btn btn-secondary" (click)="navigateToCart()">Back</button>
+      <button class="btn btn-primary" (click)="nextStep()">Continue to Shipping</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Shipping Address -->
+  <div class="step-content" *ngIf="currentStep === 2">
+    <h2>Shipping Address</h2>
+    <div class="address-selection">
+      <h3>Choose from saved addresses</h3>
+      <div class="address-cards">
+        <div
+          class="address-card"
+          *ngFor="let address of userAddresses"
+          [ngClass]="{ 'selected': selectedShippingAddress?.userAddressId === address.userAddressId }"
+          (click)="selectShippingAddress(address)"
+        >
+          <p>{{ address.streetAddress }}</p>
+          <p>{{ address.suburb }}</p>
+          <p>{{ address.cityName }}, {{ address.provinceName }} {{ address.postalCode }}</p>
+          <p>{{ address.countryName }}</p>
+          <p *ngIf="address.isDefault" class="default-label">Default</p>
+        </div>
+        <div class="address-card add-new" (click)="toggleNewShippingForm()">
+          <p>Add New Address</p>
+        </div>
+      </div>
+    </div>
+    <div class="form" *ngIf="showNewShippingForm">
+      <h3>{{ showNewShippingForm ? 'Add New Shipping Address' : 'Enter Shipping Address' }}</h3>
+      <form [formGroup]="shippingForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="streetAddress">Street Address *</label>
+            <input formControlName="streetAddress" class="form-control" [ngClass]="{ 'error': shippingForm.get('streetAddress')?.invalid && shippingForm.get('streetAddress')?.touched }" />
+            <div class="error-message">{{ getErrorMessage(shippingForm, 'streetAddress') }}</div>
+          </div>
+          <div class="form-group">
+            <label for="suburb">Suburb *</label>
+            <input formControlName="suburb" class="form-control" [ngClass]="{ 'error': shippingForm.get('suburb')?.invalid && shippingForm.get('suburb')?.touched }" />
+            <div class="error-message">{{ getErrorMessage(shippingForm, 'suburb') }}</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="postalCode">Postal Code *</label>
+            <input formControlName="postalCode" class="form-control" [ngClass]="{ 'error': shippingForm.get('postalCode')?.invalid && shippingForm.get('postalCode')?.touched }" />
+            <div class="error-message">{{ getErrorMessage(shippingForm, 'postalCode') }}</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="provinceId">Province *</label>
+            <select formControlName="provinceId" class="form-control" (change)="shippingForm.get('cityId')?.reset()">
+              <option value="" disabled>Select Province</option>
+              <option *ngFor="let province of provinces" [value]="province.provinceId">{{ province.provinceName }}</option>
+            </select>
+            <div class="error-message">{{ getErrorMessage(shippingForm, 'provinceId') }}</div>
+          </div>
+          <div class="form-group">
+          <label for="cityId">City *</label>
+          <select formControlName="cityId" class="form-control"
+                  [disabled]="!shippingForm.get('provinceId')?.value">
+            <option value="" disabled>{{ getFilteredCities('shipping').length ? 'Select City' : 'Loading cities...' }}</option>
+            <option *ngFor="let city of getFilteredCities('shipping')" [value]="city.cityId">
+              {{city.cityName}}
+            </option>
+          </select>
+          <div class="error-message">{{ getErrorMessage(shippingForm, 'cityId') }}</div>
+        </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" [(ngModel)]="saveShippingAddress" [ngModelOptions]="{standalone: true}" />
+              Save this address for future orders
+            </label>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="step-actions">
+      <button class="btn btn-secondary" (click)="previousStep()">Back</button>
+      <button class="btn btn-primary" (click)="nextStep()">Continue to Billing</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Billing Address -->
+  <div class="step-content" *ngIf="currentStep === 3">
+    <h2>Billing Address</h2>
+    <div class="billing-options">
+      <div class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="useSameAddressForBilling" [ngModelOptions]="{standalone: true}" (change)="selectedBillingAddress = useSameAddressForBilling ? selectedShippingAddress : null" />
+        Use same address for billing
+      </div>
+    </div>
+    <div class="address-selection" *ngIf="!useSameAddressForBilling">
+      <h3>Choose billing address</h3>
+      <div class="address-cards">
+        <div
+          class="address-card"
+          *ngFor="let address of userAddresses"
+          [ngClass]="{ 'selected': selectedBillingAddress?.userAddressId === address.userAddressId }"
+          (click)="selectBillingAddress(address)"
+        >
+          <p>{{ address.streetAddress }}</p>
+          <p>{{ address.suburb }}</p>
+          <p>{{ address.cityName }}, {{ address.provinceName }} {{ address.postalCode }}</p>
+          <p>{{ address.countryName }}</p>
+          <p *ngIf="address.isDefault" class="default-label">Default</p>
+        </div>
+        <div class="address-card add-new" (click)="toggleNewBillingForm()">
+          <p>Add New Address</p>
+        </div>
+      </div>
+    </div>
+    <div class="form" *ngIf="showNewBillingForm && !useSameAddressForBilling">
+      <h3>{{ showNewBillingForm ? 'Add New Billing Address' : 'Enter Billing Address' }}</h3>
+      <form [formGroup]="billingForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="streetAddress">Street Address *</label>
+            <input formControlName="streetAddress" class="form-control" [ngClass]="{ 'error': billingForm.get('streetAddress')?.invalid && billingForm.get('streetAddress')?.touched }" />
+            <div class="error-message">{{ getErrorMessage(billingForm, 'streetAddress') }}</div>
+          </div>
+          <div class="form-group">
+            <label for="suburb">Suburb *</label>
+            <input formControlName="suburb" class="form-control" [ngClass]="{ 'error': billingForm.get('suburb')?.invalid && billingForm.get('suburb')?.touched }" />
+            <div class="error-message">{{ getErrorMessage(billingForm, 'suburb') }}</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="postalCode">Postal Code *</label>
+            <input formControlName="postalCode" class="form-control" [ngClass]="{ 'error': billingForm.get('postalCode')?.invalid && billingForm.get('postalCode')?.touched }" />
+            <div class="error-message">{{ getErrorMessage(billingForm, 'postalCode') }}</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="provinceId">Province *</label>
+            <select formControlName="provinceId" class="form-control" (change)="billingForm.get('cityId')?.reset()">
+              <option value="" disabled>Select Province</option>
+              <option *ngFor="let province of provinces" [value]="province.provinceId">{{ province.provinceName }}</option>
+            </select>
+            <div class="error-message">{{ getErrorMessage(billingForm, 'provinceId') }}</div>
+          </div>
+          <div class="form-group">
+          <label for="cityId">City *</label>
+          <select formControlName="cityId" class="form-control" [disabled]="!billingForm.get('provinceId')?.value">
+            <option value="" disabled>Select City</option>
+            <option *ngFor="let city of getFilteredCities('billing')" [value]="city.cityId">{{ city.cityName }}</option>
+          </select>
+          <div class="error-message">{{ getErrorMessage(billingForm, 'cityId') }}</div>
+        </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" [(ngModel)]="saveBillingAddress" [ngModelOptions]="{standalone: true}" />
+              Save this address for future orders
+            </label>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="step-actions">
+      <button class="btn btn-secondary" (click)="previousStep()">Back</button>
+      <button class="btn btn-primary" (click)="nextStep()">Continue to Payment</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Payment -->
+  <div class="step-content" *ngIf="currentStep === 4">
+    <h2>Payment Information</h2>
+    <div class="payment-summary">
+      <h3>Final Order Summary</h3>
+      <div class="summary-card">
+        <p>Subtotal: R{{ subtotal.toFixed(2) }}</p>
+        <p>Delivery Fee: R{{ deliveryFee.toFixed(2) }}</p>
+        <p>VAT (15%): R{{ getTaxAmount().toFixed(2) }}</p>
+        <p><strong>Total: R{{ total.toFixed(2) }}</strong></p>
+      </div>
+    </div>
+    <div class="payment-form">
+      <form [formGroup]="paymentForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="paymentMethod">Payment Method *</label>
+            <select formControlName="paymentMethod" class="form-control">
+              <option value="Credit Card">Credit Card</option>
+              <option value="Debit Card">Debit Card</option>
+              <option value="EFT">EFT</option>
+            </select>
+            <div class="error-message">{{ getErrorMessage(paymentForm, 'paymentMethod') }}</div>
+          </div>
+        </div>
+        <div class="form-row" *ngIf="paymentForm.get('paymentMethod')?.value !== 'EFT'">
+          <div class="form-group">
+            <label for="cardholderName">Cardholder Name *</label>
+            <input formControlName="cardholderName" class="form-control" [ngClass]="{ 'error': paymentForm.get('cardholderName')?.invalid && paymentForm.get('cardholderName')?.touched }" />
+            <div class="error-message">{{ getErrorMessage(paymentForm, 'cardholderName') }}</div>
+          </div>
+        </div>
+        <div class="form-row" *ngIf="paymentForm.get('paymentMethod')?.value !== 'EFT'">
+          <div class="form-group">
+            <label for="cardNumber">Card Number *</label>
+            <input formControlName="cardNumber" class="form-control" [ngClass]="{ 'error': paymentForm.get('cardNumber')?.invalid && paymentForm.get('cardNumber')?.touched }" />
+            <div class="error-message">{{ getErrorMessage(paymentForm, 'cardNumber') }}</div>
+          </div>
+        </div>
+        <div class="form-row" *ngIf="paymentForm.get('paymentMethod')?.value !== 'EFT'">
+          <div class="form-group">
+            <label for="expiryMonth">Expiry Month *</label>
+            <select formControlName="expiryMonth" class="form-control">
+              <option value="" disabled>Month</option>
+              <option *ngFor="let month of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="month">{{ month.toString().padStart(2, '0') }}</option>
+            </select>
+            <div class="error-message">{{ getErrorMessage(paymentForm, 'expiryMonth') }}</div>
+          </div>
+          <div class="form-group">
+            <label for="expiryYear">Expiry Year *</label>
+            <select formControlName="expiryYear" class="form-control">
+              <option value="" disabled>Year</option>
+              <option *ngFor="let year of getYearOptions()" [value]="year">{{ year }}</option>
+            </select>
+            <div class="error-message">{{ getErrorMessage(paymentForm, 'expiryYear') }}</div>
+          </div>
+          <div class="form-group">
+            <label for="cvv">CVV *</label>
+            <input formControlName="cvv" class="form-control" [ngClass]="{ 'error': paymentForm.get('cvv')?.invalid && paymentForm.get('cvv')?.touched }" />
+            <div class="error-message">{{ getErrorMessage(paymentForm, 'cvv') }}</div>
+          </div>
+        </div>
+        <div class="eft-instructions" *ngIf="paymentForm.get('paymentMethod')?.value === 'EFT'">
+          <div class="alert alert-info">
+            <h4>EFT Payment Instructions</h4>
+            <p>Please use the following banking details to complete your payment:</p>
+            <ul>
+              <li>Bank: First National Bank</li>
+              <li>Account Name: Run For Rangers</li>
+              <li>Account Number: 1234567890</li>
+              <li>Branch Code: 250655</li>
+              <li>Reference: {{ orderId }}</li>
+            </ul>
+            <p class="text-small">Please use your order number as the payment reference</p>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="step-actions">
+      <button class="btn btn-secondary" (click)="previousStep()">Back</button>
+      <button class="btn btn-primary btn-large" (click)="nextStep()" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Complete Order - R{{ total.toFixed(2) }}</span>
+        <span *ngIf="isLoading">Processing...</span>
+      </button>
+    </div>
+  </div>
+</div>

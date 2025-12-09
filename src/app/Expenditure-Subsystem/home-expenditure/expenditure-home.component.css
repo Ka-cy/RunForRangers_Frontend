@@ -1,0 +1,375 @@
+* {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 250px;
+        height: 100vh;
+        background-color: white;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        z-index: 1000;
+        overflow-y: auto;
+    }
+
+    .logo {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .logo h1 {
+        color: #f59e0b;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .logo p {
+        color: #666;
+        font-size: 14px;
+        margin-top: 2px;
+    }
+
+    .nav-menu {
+        flex: 1;
+        padding: 20px 0;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #666;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+        background-color: #f9f9f9;
+        color: #333;
+    }
+
+    .nav-item.active {
+        background-color: #fef3c7;
+        color: #f59e0b;
+        border-right: 3px solid #f59e0b;
+    }
+
+    .nav-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        opacity: 0.7;
+    }
+
+    .nav-section {
+        padding: 0 20px;
+        margin: 20px 0 10px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #999;
+        text-transform: uppercase;
+    }
+
+    .nav-bottom {
+        border-top: 1px solid #eee;
+        padding: 20px 0;
+    }
+
+    /* Main Container */
+    .container {
+        margin-left: 280px;
+        width: calc(100% - 250px);
+        min-height: 100vh;
+        background-color: #f8fafc;
+        padding: 30px;
+    }
+
+    /* Header */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .header h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .search-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input {
+        padding: 10px 15px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        width: 250px;
+        transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #fbbf24;
+        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+    }
+
+    .search-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .create-button {
+        background-color: #fbbf24;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-size: 14px;
+    }
+
+    .create-button:hover {
+        background-color: #f59e0b;
+    }
+
+    /* Expenditure Table */
+    .expenditure-table {
+        width: 100%;
+        background-color: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        border-collapse: collapse;
+    }
+
+    .expenditure-table thead {
+        background-color: #f9fafb;
+    }
+
+    .expenditure-table th {
+        padding: 15px 20px;
+        text-align: left;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .expenditure-table tbody tr {
+        border-bottom: 1px solid #f3f4f6;
+        transition: background-color 0.2s;
+    }
+
+    .expenditure-table tbody tr:hover {
+        background-color: #f9fafb;
+    }
+
+    .expenditure-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .expenditure-table td {
+        padding: 15px 20px;
+        font-size: 14px;
+        color: #374151;
+    }
+
+    /* Action Buttons */
+    .expenditure-table td button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-right: 8px;
+        transition: all 0.2s;
+    }
+
+    .expenditure-table td button:first-child {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .expenditure-table td button:first-child:hover {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+
+    .expenditure-table td button:last-child {
+        background-color: #fef2f2;
+        color: #dc2626;
+        margin-right: 0;
+    }
+
+    .expenditure-table td button:last-child:hover {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+
+    /* Amount styling */
+    .expenditure-table td:nth-child(4) {
+        font-weight: 600;
+        color: #059669;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 30px;
+        color: #6b7280;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    }
+
+    .empty-state h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        color: #9ca3af;
+    }
+
+    .empty-state p {
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+        }
+
+        .container {
+            margin-left: 0;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
+        }
+
+        .create-button {
+            width: 100%;
+            text-align: center;
+        }
+
+        .expenditure-table {
+            font-size: 12px;
+        }
+
+        .expenditure-table th,
+        .expenditure-table td {
+            padding: 10px 15px;
+        }
+
+        .expenditure-table td button {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .expenditure-table,
+        .expenditure-table thead,
+        .expenditure-table tbody,
+        .expenditure-table th,
+        .expenditure-table td,
+        .expenditure-table tr {
+            display: block;
+        }
+
+        .expenditure-table thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        .expenditure-table tr {
+            border: 1px solid #f3f4f6;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: white;
+            padding: 15px;
+        }
+
+        .expenditure-table td {
+            border: none;
+            border-bottom: 1px solid #f3f4f6;
+            position: relative;
+            padding: 10px 0 10px 120px;
+        }
+
+        .expenditure-table td:before {
+            content: attr(data-label);
+            position: absolute;
+            left: 6px;
+            width: 110px;
+            padding-right: 10px;
+            white-space: nowrap;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .expenditure-table td:last-child {
+            border-bottom: none;
+            padding-left: 0;
+        }
+
+        .expenditure-table td:last-child:before {
+            display: none;
+        }
+    }
+
+    /* Small spinner for action buttons */
+    .spinner-border-sm {
+        width: 0.875rem;
+        height: 0.875rem;
+        border-width: 0.1em;
+    }
+
+    .spinner-border {
+        display: inline-block;
+        vertical-align: text-bottom;
+        border: 0.25em solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: spinner-border 0.75s linear infinite;
+    }
+
+    @keyframes spinner-border {
+        to { transform: rotate(360deg); }
+    }

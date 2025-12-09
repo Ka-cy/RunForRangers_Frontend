@@ -1,0 +1,159 @@
+<app-nav-bar-admin>
+  <input 
+    type="text" 
+    class="textbox" 
+    placeholder="Search events by name..."
+    [(ngModel)]="searchTerm"
+    (input)="onSearchChange()"
+  />
+</app-nav-bar-admin>
+
+<div class="admin-layout">
+  <div class="container">
+  <div class="header">
+    <h2>Event Calendar</h2>
+    <div class="header-actions">
+      <button (click)="goBack()" class="button btn-secondary">Back to Events</button>
+      <div class="calendar-navigation">
+        <div class="date-selectors">
+          <select [(ngModel)]="selectedMonth" (change)="onDateChange()" class="month-selector">
+            <option *ngFor="let month of months; let i = index" [value]="i">
+              {{ month }}
+            </option>
+          </select>
+          <select [(ngModel)]="selectedYear" (change)="onDateChange()" class="year-selector">
+            <option *ngFor="let year of years" [value]="year">
+              {{ year }}
+            </option>
+          </select>
+        </div>
+        <div class="navigation-buttons">
+          <button class="nav-btn" (click)="previousMonth()" title="Previous Month">&lt;</button>
+          <button class="nav-btn" (click)="nextMonth()" title="Next Month">&gt;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Loading events...</div>
+  
+  <div *ngIf="!isLoading" class="debug-info">
+    <p>Total events loaded: {{ events.length }}</p>
+  </div>
+
+  <div class="calendar-container" *ngIf="!isLoading">
+    <!-- eEvent Legend -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color completed"></div>
+        <span>Completed Events (Green)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color pending"></div>
+        <span>Upcoming Events (Yellow)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color today"></div>
+        <span>Today (Purple)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color event-today"></div>
+        <span>Event Day (Blue)</span>
+      </div>
+    </div>
+
+    <!-- Calendar Header - Days of Week -->
+    <div class="calendar-grid">
+      <div class="calendar-header">
+        <div class="day-header">Sun</div>
+        <div class="day-header">Mon</div>
+        <div class="day-header">Tue</div>
+        <div class="day-header">Wed</div>
+        <div class="day-header">Thu</div>
+        <div class="day-header">Fri</div>
+        <div class="day-header">Sat</div>
+      </div>
+
+      <!-- Calendar Days -->
+      <div class="calendar-body">
+        <div 
+          *ngFor="let day of calendarDays" 
+          class="calendar-day"
+          [class.other-month]="!day.isCurrentMonth"
+          [class.today]="day.isToday"
+          [class.has-completed-events]="day.hasCompletedEvents"
+          [class.has-pending-events]="day.hasPendingEvents"
+          [class.has-active-events]="day.hasActiveEvents"
+          [class.has-mixed-events]="day.hasMixedEvents"
+          (click)="onDayClick(day)">
+          
+          <div class="day-number">{{ day.day }}</div>
+          
+          <!-- Event Names -->
+          <div class="event-list" *ngIf="day.events.length > 0">
+            <div 
+              *ngFor="let event of day.events" 
+              class="event-name"
+              [class.completed]="event.isCompleted && !day.isToday"
+              [class.pending]="!event.isCompleted && !day.isToday"
+              [class.event-today]="day.isToday"
+              [title]="event.eventName + ' - ' + (day.isToday ? 'Event Today' : event.isCompleted ? 'Completed' : 'Upcoming')"
+              (click)="onEventClick(event); $event.stopPropagation()">
+              {{ event.eventName }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Day Events Modal -->
+  <div class="day-events-modal" *ngIf="selectedDay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Events for {{ selectedDay.date | date:'fullDate' }}</h3>
+        <button class="close-btn" (click)="closeDayModal()">&times;</button>
+      </div>
+      
+      <div class="modal-body" *ngIf="selectedDay.events.length > 0; else noEvents">
+        <div *ngFor="let event of selectedDay.events" class="event-item">
+          <div class="event-status-indicator" [class.completed]="event.isCompleted"></div>
+          <div class="event-details">
+            <h4>{{ event.eventName }}</h4>
+            <p>{{ event.description }}</p>
+            <p><strong>Status:</strong> {{ event.eventStatusName }}</p>
+            <p><strong>Completed:</strong> {{ event.isCompleted ? 'Yes' : 'No' }}</p>
+            
+            <div *ngIf="event.jobs && event.jobs.length > 0" class="jobs-list">
+              <h5>Jobs:</h5>
+              <ul>
+                <li *ngFor="let job of event.jobs">
+                  {{ job.jobTitle }} - {{ job.jobStatusName }}
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="event-actions">
+              <button *ngIf="canModifyData()" class="button btn-primary btn-small" (click)="editEvent(event)">
+                Edit
+              </button>
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #noEvents>
+        <div class="no-events">No events scheduled for this day.</div>
+      </ng-template>
+        <div class="modal-footer">
+          <button 
+            class="button btn-info" 
+            *ngIf="selectedDay && selectedDay.events && selectedDay.events.length > 0 && selectedDay.events[0].id != null"
+            (click)="onViewRegisteredRunners(selectedDay.events[0].id)">
+            View Registered Runners
+          </button>
+        </div>
+    </div>
+  </div>
+</div>
+</div>

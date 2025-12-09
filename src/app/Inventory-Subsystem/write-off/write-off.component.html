@@ -1,0 +1,86 @@
+<!-- Sidebar Navigation -->
+<div class="sidebar">
+  <h2 class="logo">RunForRangers</h2>
+  <p class="admin-label">Admin</p>
+  <nav>
+    <ul>
+      <li><a (click)="router.navigate(['/dashboard'])">Dashboard</a></li>
+      <li><a (click)="router.navigate(['/products'])">Products</a></li>
+      <li><a (click)="router.navigate(['/users'])">Users</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><a href="#">Orders</a></li>
+      <li><a href="#">Events</a></li>
+      <li><a href="#">Expenditure</a></li>
+      <li><a (click)="router.navigate(['/donations'])">Donations</a></li>
+      <li><a (click)="router.navigate(['/runner'])">Runner</a></li>
+      <li><a (click)="router.navigate(['/employees'])">Employees</a></li>
+      <li class="active"><a (click)="router.navigate(['/inventory'])">Inventory</a></li>
+      <li><a href="#">Delivery</a></li>
+      <li><a href="#">Settings</a></li>
+      <li><a (click)="router.navigate(['/login'])">Logout</a></li>
+    </ul>
+  </nav>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <header class="header">
+    <h2 class="header-title" style="color: #f59e0b;">Write-Off Stock</h2>
+    <div class="user-info">
+      <div class="user-avatar">HM</div>
+      <div class="user-details">
+        <h4>Harry Manager</h4>
+        <p>Admin</p>
+      </div>
+    </div>
+  </header>
+
+ <div class="inventory-form">
+  <h2>Write-Off Form</h2>
+  <form #writeOffForm="ngForm" (ngSubmit)="onSubmit(writeOffForm)">
+    
+    <div class="form-group">
+      <label for="quantity">Quantity to Write Off</label>
+      <input
+        type="number"
+        [(ngModel)]="quantity"
+        name="quantity"
+        id="quantity"
+        class="form-control"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="description">Reason</label>
+      <select
+        [(ngModel)]="description"
+        name="description"
+        id="description"
+        class="form-control"
+        required
+      >
+        <option value="" disabled selected>Select a reason</option>
+        <option value="Expired">Expired</option>
+        <option value="Damaged">Damaged</option>
+        <option value="Lost">Lost</option>
+        <option value="Stolen">Stolen</option>
+        <option value="Incorrect Delivery">Incorrect Delivery</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="button-row">
+      <button type="submit" class="save-btn">Write Off</button>
+      <button
+        type="button"
+        class="save-btn cancel"
+        (click)="router.navigate(['/inventory'])"
+      >
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>
+
+<app-notification-modal></app-notification-modal>
